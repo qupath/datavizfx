@@ -1,22 +1,26 @@
 package net.mahdilamb.charts;
 
 
-import net.mahdilamb.charts.Chart;
-import net.mahdilamb.charts.Plot;
+import javafx.scene.text.Font;
 import net.mahdilamb.charts.styles.Text;
 
 public class ChartFX<L extends Plot> extends Chart<L> {
+    private static javafx.scene.text.Text testText = new javafx.scene.text.Text();
 
     @Override
     protected double getTextWidth(Text text) {
-        //TODO
-        return 0;
+        if (testText.getFont().getSize() != text.getFontSize()) {
+            testText.setFont(new Font(text.getFontSize()));
+        }
+        return testText.getLayoutBounds().getWidth();
     }
 
     @Override
     protected double getTextHeight(Text text) {
-        //TODO
-        return 0;
+        if (testText.getFont().getSize() != text.getFontSize()) {
+            testText.setFont(new Font(text.getFontSize()));
+        }
+        return testText.getLayoutBounds().getHeight();
     }
 
     @Override

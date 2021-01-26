@@ -1,7 +1,27 @@
 plugins {
-    id 'java'
+    id 'org.openjfx.javafxplugin' version '0.0.9'
 }
+allprojects {
+    plugins.withType(JavaPlugin) {
+        dependencies {
+            testImplementation 'junit:junit:4.13'
+        }
 
+        compileJava {
+            sourceCompatibility = 9;
+            targetCompatibility = 9;
+        }
+        repositories {
+            mavenCentral()
+        }
+        test {
+            useJUnit()
+        }
+        javadoc {
+            options.tags = ["apiNote", "implNote"]
+        }
+    }
+}
 group 'org.example'
 version '1.0-SNAPSHOT'
 
@@ -13,13 +33,17 @@ repositories {
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testCompile("junit:junit:4.13")
     compile project(":charts")
-    compile 'net.mahdilamb:utils-functions:0.1.0-SNAPSHOT'
+    compile 'net.mahdilamb:utils-functions:0.1.1-SNAPSHOT'
+    compile group: 'org.openjfx', name: 'javafx', version: '11', ext: 'pom'
 
 }
 
 test {
-    useJUnitPlatform()
+    useJUnit()
+}
+javafx {
+    version = "15.0.1"
+    modules = ['javafx.controls']
 }
