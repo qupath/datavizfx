@@ -46,23 +46,22 @@ public class ChartFX<P extends Plot<S>, S extends PlotSeries<S>> extends Chart<P
     }
 
     @Override
-    protected double getImageWidth(Object image) {
+    protected double getImageWidth(Object image) throws ClassCastException {
         return ((Image)image).getWidth();
     }
 
     @Override
-    protected double getImageHeight(Object image) {
+    protected double getImageHeight(Object image) throws ClassCastException {
         return ((Image)image).getHeight();
     }
 
     @Override
-    protected byte[] bytesFromImage(Object image) {
+    protected byte[] bytesFromImage(Object image) throws ClassCastException {
         return FXUtils.convert(((Image)image));
     }
 
     @Override
-    public void setBackgroundColor(String colorName) {
-        super.setBackgroundColor(colorName);
+    protected void backgroundChanged() {
         if (getBackgroundColor() != null) {
             parent.setBackground(new Background(new BackgroundFill(FXUtils.convert(getBackgroundColor()), null, null)));
         }
