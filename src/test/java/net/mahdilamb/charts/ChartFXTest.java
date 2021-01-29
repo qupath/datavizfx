@@ -1,33 +1,28 @@
 package net.mahdilamb.charts;
 
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
-import net.mahdilamb.charts.fx.ChartFX;
-import net.mahdilamb.charts.graphics.Font;
+import net.mahdilamb.charts.series.Dataset;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.Objects;
 
-public class ChartFXTest extends Application {
+import static net.mahdilamb.charts.PlotFactory.scatter;
+import static net.mahdilamb.charts.fx.FXChart.show;
+
+public class ChartFXTest {
 
     public static void main(String[] args) {
-        launch(args);
+        final File source = new File(Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource("iris.csv")).getFile());
+        final Dataset iris = Dataset.from(source);
+
+        show("Sepal length vs width",
+                800, 640,
+                scatter(iris, "sepal_length", "sepal_width", "petal_length")
+                        .setMarker('.')
+                        .setName("sepal: length v width")
+                        .setGroups(iris.getStringSeries("species"))
+        );
+
+
     }
 
-    @Override
-    public void start(Stage stage) {
-        final StackPane root = new StackPane();
-        final ChartFX<?, ?> chart = new ChartFX<>("Chart", 200, 200, null);
-        final Scene scene = new Scene(root, chart.getWidth(), chart.getHeight());
-        chart.addTo(root);
-        stage.setScene(scene);
-        stage.show();
-        try {
-            chart.saveAsSVG(new File("D:\\mahdi\\Desktop\\12121.svg"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }

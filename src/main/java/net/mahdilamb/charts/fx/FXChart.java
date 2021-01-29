@@ -1,6 +1,8 @@
 package net.mahdilamb.charts.fx;
 
 
+import com.sun.javafx.tk.FontMetrics;
+import com.sun.javafx.tk.Toolkit;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
@@ -9,19 +11,47 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
+import javafx.scene.transform.Affine;
+import javafx.scene.transform.Rotate;
 import net.mahdilamb.charts.Chart;
+import net.mahdilamb.charts.Title;
 import net.mahdilamb.charts.graphics.*;
 import net.mahdilamb.charts.layouts.Plot;
+import net.mahdilamb.charts.layouts.XYMarginalPlot;
 import net.mahdilamb.charts.plots.PlotSeries;
 import net.mahdilamb.geom2d.geometries.Ellipse;
 
-public class ChartFX<P extends Plot<S>, S extends PlotSeries<S>> extends Chart<P, S> {
+import java.util.Arrays;
 
+import static net.mahdilamb.charts.swing.SwingUtils.ensureCapacity;
+
+public class FXChart<P extends Plot<S>, S extends PlotSeries<S>> extends Chart<P, S> {
+    /**
+     * Convert a series to a chart
+     *
+     * @param title  the title of the chart
+     * @param width  the width of the chart
+     * @param height the height of the chart
+     * @param series the series
+     * @param <S>    the type of the series
+     * @return the series in its plot
+     */
+    public static <S extends PlotSeries<S>> FXChart<XYMarginalPlot<S>, S> chart(final String title, double width, double height, final S series) {
+        return new FXChart<>(title, width, height, toPlot(series, 0, 10, 0, 10));
+    }
+
+    public static <P extends Plot<S>, S extends PlotSeries<S>> void show(FXChart<P, S> chart) {
+        FXChartLauncher.launch(chart);
+    }
+
+    public static <S extends PlotSeries<S>> void show(final String title, double width, double height, final S series) {
+        FXChartLauncher.launch(chart(title, width, height, series));
+    }
 
     private final ChartPanel canvas = new ChartPanel();
     private Pane parent;
 
-    public ChartFX(String title, double width, double height, P plot) {
+    private FXChart(String title, double width, double height, P plot) {
         super(title, width, height, plot);
         canvas.setWidth(width);
         canvas.setHeight(height);
@@ -33,6 +63,28 @@ public class ChartFX<P extends Plot<S>, S extends PlotSeries<S>> extends Chart<P
     }
 
     @Override
+    protected double getTextHeight(Title title, double maxWidth, double lineSpacing) {
+        FontMetrics fontMetrics = Toolkit.getToolkit().getFontLoader().getFontMetrics(FXUtils.convert(title.getFont()));
+        final String text = title.getText();
+        int lineCount = 0;
+        int i = 0;
+        double currentWidth = 0;
+        while (i < text.length()) {
+            char c = text.charAt(i++);
+            currentWidth += fontMetrics.getCharWidth(c);
+            if (Character.isWhitespace(c) && i != 0 && currentWidth > maxWidth) {
+                ++lineCount;
+                currentWidth = 0;
+
+            }
+        }
+        if (currentWidth > 0) {
+            ++lineCount;
+        }
+        return lineSpacing * lineCount * fontMetrics.getLineHeight();
+    }
+
+    @Override
     protected double getTextBaselineOffset(Font font) {
         canvas.testText.setFont(FXUtils.convert(font));
         return canvas.testText.getBaselineOffset();
@@ -41,23 +93,23 @@ public class ChartFX<P extends Plot<S>, S extends PlotSeries<S>> extends Chart<P
     @Override
     protected double getTextWidth(Font font, String text) {
         canvas.testText.setFont(FXUtils.convert(font));
-        canvas. testText.setText(text);
-        return  canvas.testText.getLayoutBounds().getWidth();
+        canvas.testText.setText(text);
+        return canvas.testText.getLayoutBounds().getWidth();
     }
 
     @Override
     protected double getImageWidth(Object image) throws ClassCastException {
-        return ((Image)image).getWidth();
+        return ((Image) image).getWidth();
     }
 
     @Override
     protected double getImageHeight(Object image) throws ClassCastException {
-        return ((Image)image).getHeight();
+        return ((Image) image).getHeight();
     }
 
     @Override
     protected byte[] bytesFromImage(Object image) throws ClassCastException {
-        return FXUtils.convert(((Image)image));
+        return FXUtils.convert(((Image) image));
     }
 
     @Override
@@ -66,6 +118,60 @@ public class ChartFX<P extends Plot<S>, S extends PlotSeries<S>> extends Chart<P
             parent.setBackground(new Background(new BackgroundFill(FXUtils.convert(getBackgroundColor()), null, null)));
         }
     }
+
+    @Override
+    protected double getLineHeight(Title title) {
+        return Toolkit.getToolkit().getFontLoader().getFontMetrics(FXUtils.convert(title.getFont())).getLineHeight();
+    }
+
+    @Override
+    protected double[] getTextLineOffsets(Title title, double maxWidth) {
+        FontMetrics fontMetrics = Toolkit.getToolkit().getFontLoader().getFontMetrics(FXUtils.convert(title.getFont()));
+        int i = 0;
+        int wordStart = 0;
+        final double frac;
+        double[] out = new double[4];
+        int j = 0;
+
+        switch (title.getAlignment()) {
+            case LEFT:
+                frac = 0;
+                break;
+            case CENTER:
+                frac = 0.5;
+                break;
+            case RIGHT:
+                frac = 1;
+                break;
+            default:
+                throw new UnsupportedOperationException();
+        }
+        final String text = title.getText();
+        while (i < text.length()) {
+            char c = text.charAt(i++);
+            if (c == '\n') {
+                out = ensureCapacity(out, j + 1);
+                out[j++] = frac == 0 ? 0 : ((stringWidth(fontMetrics, text, wordStart, i) - maxWidth) * frac);
+                wordStart = i;
+            }
+        }
+        if (wordStart < text.length()) {
+            out = ensureCapacity(out, j + 1);
+            out[j++] = frac == 0 ? 0 : ((stringWidth(fontMetrics, text, wordStart, text.length()) - maxWidth) * frac);
+        }
+        Arrays.fill(out, j, out.length, Double.NaN);
+        return out;
+    }
+
+    private static double stringWidth(final FontMetrics fontMetrics, final String string, int start, int end) {
+        double width = 0;
+        int i = start;
+        while (i < end) {
+            width += fontMetrics.getCharWidth(string.charAt(i++));
+        }
+        return width;
+    }
+
 
     /**
      * Add this chart to a node
@@ -84,6 +190,7 @@ public class ChartFX<P extends Plot<S>, S extends PlotSeries<S>> extends Chart<P
         private final Text testText = new Text("Test");
         Fill currentFill = Fill.BLACK_FILL;
         Stroke currentStroke = Stroke.BLACK_STROKE;
+        final Affine affine = new Affine();
 
         ChartPanel() {
         }
@@ -157,6 +264,16 @@ public class ChartFX<P extends Plot<S>, S extends PlotSeries<S>> extends Chart<P
         @Override
         public void fillText(String text, double x, double y) {
             getGraphicsContext2D().fillText(text, x, y);
+        }
+
+        @Override
+        public void fillRotatedText(String text, double x, double y, double rotationDegrees, double pivotX, double pivotY) {
+            affine.setToIdentity();
+            affine.appendRotation(rotationDegrees,pivotX,pivotY);
+            getGraphicsContext2D().setTransform(affine);
+            getGraphicsContext2D().fillText(text, x, y);
+            affine.setToIdentity();
+            getGraphicsContext2D().setTransform(affine);
         }
 
         @Override

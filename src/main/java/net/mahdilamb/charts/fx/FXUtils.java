@@ -13,6 +13,7 @@ import net.mahdilamb.geom2d.geometries.Geometries;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
@@ -32,7 +33,19 @@ final class FXUtils {
     }
 
     public static byte[] convert(final Image i) {
-        final PixelReader pr = i.getPixelReader();
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            ImageIO.write(convertToBufferedImage(i), "png", baos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return baos.toByteArray();
+
+    }
+
+    public static BufferedImage convertToBufferedImage(final Image i) {
+        PixelReader pr = i.getPixelReader();
         int iw = (int) i.getWidth();
         int ih = (int) i.getHeight();
         final BufferedImage bufferedImage = new BufferedImage(iw, ih, BufferedImage.TYPE_INT_ARGB);
@@ -43,15 +56,11 @@ final class FXUtils {
                 bufferedImage.setRGB(x, y, argb);
             }
         }
+        return bufferedImage;
+    }
 
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try {
-            ImageIO.write(bufferedImage, "png", baos);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return baos.toByteArray();
-
+    public static void saveAsPNG(final File file, final Image img) throws IOException {
+        ImageIO.write(convertToBufferedImage(img), "png", file);
     }
 
     /**
