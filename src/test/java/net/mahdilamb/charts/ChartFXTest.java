@@ -8,6 +8,7 @@ import net.mahdilamb.charts.fx.ChartFX;
 import net.mahdilamb.charts.graphics.Font;
 
 import java.io.File;
+import java.io.IOException;
 
 public class ChartFXTest extends Application {
 
@@ -23,6 +24,10 @@ public class ChartFXTest extends Application {
         chart.addTo(root);
         stage.setScene(scene);
         stage.show();
-        chart.saveAsSVG(new File("D:\\mahdi\\Desktop\\12121.svg"));
+        try {
+            chart.saveAsSVG(new File("D:\\mahdi\\Desktop\\12121.svg"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

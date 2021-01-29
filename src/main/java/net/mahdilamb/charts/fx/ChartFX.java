@@ -33,8 +33,36 @@ public class ChartFX<P extends Plot<S>, S extends PlotSeries<S>> extends Chart<P
     }
 
     @Override
-    public void setBackgroundColor(String name) {
-        super.setBackgroundColor(name);
+    protected double getTextBaselineOffset(Font font) {
+        canvas.testText.setFont(FXUtils.convert(font));
+        return canvas.testText.getBaselineOffset();
+    }
+
+    @Override
+    protected double getTextWidth(Font font, String text) {
+        canvas.testText.setFont(FXUtils.convert(font));
+        canvas. testText.setText(text);
+        return  canvas.testText.getLayoutBounds().getWidth();
+    }
+
+    @Override
+    protected double getImageWidth(Object image) {
+        return ((Image)image).getWidth();
+    }
+
+    @Override
+    protected double getImageHeight(Object image) {
+        return ((Image)image).getHeight();
+    }
+
+    @Override
+    protected byte[] bytesFromImage(Object image) {
+        return FXUtils.convert(((Image)image));
+    }
+
+    @Override
+    public void setBackgroundColor(String colorName) {
+        super.setBackgroundColor(colorName);
         if (getBackgroundColor() != null) {
             parent.setBackground(new Background(new BackgroundFill(FXUtils.convert(getBackgroundColor()), null, null)));
         }
@@ -194,35 +222,6 @@ public class ChartFX<P extends Plot<S>, S extends PlotSeries<S>> extends Chart<P
         }
 
         @Override
-        public double getImageWidth(Image image) {
-            return image.getWidth();
-        }
-
-        @Override
-        public double getImageHeight(Image image) {
-            return image.getHeight();
-        }
-
-        @Override
-        public byte[] bytesFromImage(Image image) {
-            return FXUtils.convert(image);
-        }
-
-        @Override
-        public double getTextBaselineOffset(Font font) {
-            testText.setFont(FXUtils.convert(font));
-            return testText.getBaselineOffset();
-        }
-
-        @Override
-        public double getTextWidth(Font font, String text) {
-            testText.setFont(FXUtils.convert(font));
-            testText.setText(text);
-            return testText.getLayoutBounds().getWidth();
-        }
-
-
-        @Override
         public void setStroke(Stroke stroke) {
             this.currentStroke = stroke;
             getGraphicsContext2D().setLineWidth(stroke.getWidth());
@@ -269,4 +268,5 @@ public class ChartFX<P extends Plot<S>, S extends PlotSeries<S>> extends Chart<P
             getGraphicsContext2D().stroke();
         }
     }
+
 }
