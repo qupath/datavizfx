@@ -47,3 +47,28 @@ javafx {
     version = "15.0.1"
     modules = ['javafx.controls']
 }
+
+
+task fxTest(type: JavaExec, dependsOn: ['testClasses']) {
+    classpath sourceSets.test.runtimeClasspath
+    args = ["net.mahdilamb.charts.ChartFXTest"]
+
+    /* if (project.hasProperty("demo")) {
+         switch (project.getProperty("demo")) {
+             case "bar":
+                 args = ["qupath.charts.demos.BarSeriesDemo"]
+                 break
+             case "subplot":
+                 args = ["qupath.charts.demos.SubPlotDemo"]
+                 break
+             case "v3":
+                 args = ["qupath.charts.demos.Version3"]
+                 break
+             default:
+                 args = ["qupath.charts.demos.ScatterSeriesDemo"]
+                 break
+         }
+     }*/
+
+    main = "net.mahdilamb.charts.DemoLauncher"
+}
