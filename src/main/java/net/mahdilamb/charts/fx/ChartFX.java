@@ -3,6 +3,7 @@ package net.mahdilamb.charts.fx;
 
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Pane;
@@ -27,7 +28,7 @@ public class ChartFX<P extends Plot<S>, S extends PlotSeries<S>> extends Chart<P
     }
 
     @Override
-    protected ChartCanvas getCanvas() {
+    protected ChartCanvas<Image> getCanvas() {
         return canvas;
     }
 
@@ -52,7 +53,7 @@ public class ChartFX<P extends Plot<S>, S extends PlotSeries<S>> extends Chart<P
         layout();
     }
 
-    private static final class ChartPanel extends Canvas implements ChartCanvas {
+    private static final class ChartPanel extends Canvas implements ChartCanvas<Image> {
         private final Text testText = new Text("Test");
         Fill currentFill = Fill.BLACK_FILL;
         Stroke currentStroke = Stroke.BLACK_STROKE;
@@ -139,15 +140,6 @@ public class ChartFX<P extends Plot<S>, S extends PlotSeries<S>> extends Chart<P
         }
 
         @Override
-        public void fillText(net.mahdilamb.charts.Text text, double x, double y) {
-            testText.setFont(FXUtils.convert(text.getFont()));
-            testText.setText(text.getText());
-            setMetrics(text, testText.getLayoutBounds().getWidth(), testText.getLayoutBounds().getHeight(), testText.getBaselineOffset());
-            getGraphicsContext2D().fillText(text.getText(), getAdjustedX(text, x), getAdjustedY(text, y));
-
-        }
-
-        @Override
         public void setClip(ClipShape shape, double x, double y, double width, double height) {
             getGraphicsContext2D().save();
             switch (shape) {
@@ -158,21 +150,21 @@ public class ChartFX<P extends Plot<S>, S extends PlotSeries<S>> extends Chart<P
                     getGraphicsContext2D().moveTo(cx + a, cy);
                     getGraphicsContext2D().bezierCurveTo(
                             cx + a, cy - (Ellipse.MORTENSEN_CONSTANT * b),
-                            cx + (Ellipse.MORTENSEN_CONSTANT * a), cy - (b),
+                            cx + (Ellipse.MORTENSEN_CONSTANT * a), cy - b,
                             cx, cy - b
                     );
                     getGraphicsContext2D().bezierCurveTo(
-                            cx - (Ellipse.MORTENSEN_CONSTANT * a), cy - (b),
+                            cx - (Ellipse.MORTENSEN_CONSTANT * a), cy - b,
                             cx - a, cy - (Ellipse.MORTENSEN_CONSTANT * b),
                             cx - a, cy
                     );
                     getGraphicsContext2D().bezierCurveTo(
                             cx - a, cy + (Ellipse.MORTENSEN_CONSTANT * b),
-                            cx - (Ellipse.MORTENSEN_CONSTANT * a), cy + (b),
+                            cx - (Ellipse.MORTENSEN_CONSTANT * a), cy + b,
                             cx, cy + b
                     );
                     getGraphicsContext2D().bezierCurveTo(
-                            cx + (Ellipse.MORTENSEN_CONSTANT * a), cy + (b),
+                            cx + (Ellipse.MORTENSEN_CONSTANT * a), cy + b,
                             cx + a, cy + (Ellipse.MORTENSEN_CONSTANT * b),
                             cx + a, cy
                     );
@@ -194,6 +186,39 @@ public class ChartFX<P extends Plot<S>, S extends PlotSeries<S>> extends Chart<P
             getGraphicsContext2D().restore();
             setFill(currentFill);
             setStroke(currentStroke);
+        }
+
+        @Override
+        public void drawImage(Image image, double x, double y) {
+            getGraphicsContext2D().drawImage(image, x, y);
+        }
+
+        @Override
+        public double getImageWidth(Image image) {
+            return image.getWidth();
+        }
+
+        @Override
+        public double getImageHeight(Image image) {
+            return image.getHeight();
+        }
+
+        @Override
+        public byte[] bytesFromImage(Image image) {
+            return FXUtils.convert(image);
+        }
+
+        @Override
+        public double getTextBaselineOffset(Font font) {
+            testText.setFont(FXUtils.convert(font));
+            return testText.getBaselineOffset();
+        }
+
+        @Override
+        public double getTextWidth(Font font, String text) {
+            testText.setFont(FXUtils.convert(font));
+            testText.setText(text);
+            return testText.getLayoutBounds().getWidth();
         }
 
 

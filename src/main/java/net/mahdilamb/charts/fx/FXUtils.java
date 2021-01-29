@@ -1,7 +1,6 @@
 package net.mahdilamb.charts.fx;
 
 import javafx.scene.image.Image;
-import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelReader;
 import javafx.scene.paint.*;
 import javafx.scene.text.Font;
@@ -9,9 +8,12 @@ import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import net.mahdilamb.charts.graphics.Fill;
 import net.mahdilamb.charts.utils.StringUtils;
-import net.mahdilamb.colormap.Color;
 import net.mahdilamb.geom2d.geometries.Geometries;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Map;
 
 final class FXUtils {
@@ -29,28 +31,26 @@ final class FXUtils {
         return new javafx.scene.paint.Color(color.red(), color.green(), color.blue(), color.alpha());
     }
 
-    /**
-     * Convert Fx paint to abstract color
-     *
-     * @param fill the source color
-     * @return abstract color
-     */
-    public static Color convert(Paint fill) {
-        if (fill.getClass() == javafx.scene.paint.Color.class) {
-            return new Color(((javafx.scene.paint.Color) fill).getRed(), ((javafx.scene.paint.Color) fill).getGreen(), ((javafx.scene.paint.Color) fill).getBlue(), ((javafx.scene.paint.Color) fill).getOpacity());
+    public static byte[] convert(final Image i) {
+        final PixelReader pr = i.getPixelReader();
+        int iw = (int) i.getWidth();
+        int ih = (int) i.getHeight();
+        final BufferedImage bufferedImage = new BufferedImage(iw, ih, BufferedImage.TYPE_INT_ARGB);
+
+        for (int y = 0; y < ih; ++y) {
+            for (int x = 0; x < iw; ++x) {
+                final int argb = pr.getArgb(x, y);
+                bufferedImage.setRGB(x, y, argb);
+            }
         }
-        throw new UnsupportedOperationException(String.format("Cannot convert fill of type %s", fill.getClass()));
-    }
 
-    public static byte[] convert(final Image image) {
-        final PixelReader pixelReader = image.getPixelReader();
-
-        final int width = (int) Math.round(image.getWidth());
-        final int height = (int) Math.round(image.getHeight());
-
-        final byte[] buffer = new byte[4 * width * height];
-        pixelReader.getPixels(0, 0, width, height, PixelFormat.getByteBgraInstance(), buffer, 0, width * 4);
-        return buffer;
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            ImageIO.write(bufferedImage, "png", baos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return baos.toByteArray();
 
     }
 
