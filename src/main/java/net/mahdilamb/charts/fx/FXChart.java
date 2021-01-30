@@ -12,20 +12,18 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Affine;
-import javafx.scene.transform.Rotate;
 import net.mahdilamb.charts.Chart;
 import net.mahdilamb.charts.Title;
 import net.mahdilamb.charts.graphics.*;
-import net.mahdilamb.charts.layouts.Plot;
+import net.mahdilamb.charts.layouts.PlotLayout;
 import net.mahdilamb.charts.layouts.XYMarginalPlot;
-import net.mahdilamb.charts.plots.PlotSeries;
 import net.mahdilamb.geom2d.geometries.Ellipse;
 
 import java.util.Arrays;
 
 import static net.mahdilamb.charts.swing.SwingUtils.ensureCapacity;
 
-public class FXChart<P extends Plot<S>, S extends PlotSeries<S>> extends Chart<P, S> {
+public class FXChart<P extends PlotLayout<S>, S> extends Chart<P, S> {
     /**
      * Convert a series to a chart
      *
@@ -36,15 +34,15 @@ public class FXChart<P extends Plot<S>, S extends PlotSeries<S>> extends Chart<P
      * @param <S>    the type of the series
      * @return the series in its plot
      */
-    public static <S extends PlotSeries<S>> FXChart<XYMarginalPlot<S>, S> chart(final String title, double width, double height, final S series) {
+    public static <S> FXChart<XYMarginalPlot<S>, S> chart(final String title, double width, double height, final S series) {
         return new FXChart<>(title, width, height, toPlot(series, 0, 10, 0, 10));
     }
 
-    public static <P extends Plot<S>, S extends PlotSeries<S>> void show(FXChart<P, S> chart) {
+    public static <P extends PlotLayout<S>, S> void show(FXChart<P, S> chart) {
         FXChartLauncher.launch(chart);
     }
 
-    public static <S extends PlotSeries<S>> void show(final String title, double width, double height, final S series) {
+    public static <S> void show(final String title, double width, double height, final S series) {
         FXChartLauncher.launch(chart(title, width, height, series));
     }
 
@@ -269,7 +267,7 @@ public class FXChart<P extends Plot<S>, S extends PlotSeries<S>> extends Chart<P
         @Override
         public void fillRotatedText(String text, double x, double y, double rotationDegrees, double pivotX, double pivotY) {
             affine.setToIdentity();
-            affine.appendRotation(rotationDegrees,pivotX,pivotY);
+            affine.appendRotation(rotationDegrees, pivotX, pivotY);
             getGraphicsContext2D().setTransform(affine);
             getGraphicsContext2D().fillText(text, x, y);
             affine.setToIdentity();

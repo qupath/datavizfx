@@ -36,7 +36,6 @@ dependencies {
     testCompile("junit:junit:4.13")
     compile project(":charts")
     compile 'net.mahdilamb:utils-functions:0.1.1-SNAPSHOT'
-    compile group: 'org.openjfx', name: 'javafx', version: '11', ext: 'pom'
 
 }
 
