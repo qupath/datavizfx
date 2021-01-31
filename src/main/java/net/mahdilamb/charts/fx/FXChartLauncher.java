@@ -32,7 +32,7 @@ public final class FXChartLauncher extends Application {
      */
     public static void launch(FXChart<?, ?> chart) {
         FXChartLauncher.chart = chart;
-        Application.launch(FXChartLauncher.class, (String) null);
+        launch(FXChartLauncher.class, (String) null);
 
     }
 
