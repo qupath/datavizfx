@@ -10,6 +10,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Affine;
 import net.mahdilamb.charts.Chart;
@@ -61,7 +62,7 @@ public class FXChart<P extends PlotLayout<S>, S> extends Chart<P, S> {
     }
 
     @Override
-    protected double getTextHeight(Title title, double maxWidth, double lineSpacing) {
+    protected double getTextLineHeight(Title title, double maxWidth, double lineSpacing) {
         FontMetrics fontMetrics = Toolkit.getToolkit().getFontLoader().getFontMetrics(FXUtils.convert(title.getFont()));
         final String text = title.getText();
         int lineCount = 0;
@@ -93,6 +94,12 @@ public class FXChart<P extends PlotLayout<S>, S> extends Chart<P, S> {
         canvas.testText.setFont(FXUtils.convert(font));
         canvas.testText.setText(text);
         return canvas.testText.getLayoutBounds().getWidth();
+    }
+
+    @Override
+    protected double getTextLineHeight(Font font) {
+        FontMetrics fontMetrics = Toolkit.getToolkit().getFontLoader().getFontMetrics(FXUtils.convert(font));
+        return fontMetrics.getLineHeight();
     }
 
     @Override
@@ -211,6 +218,7 @@ public class FXChart<P extends PlotLayout<S>, S> extends Chart<P, S> {
         @Override
         public void fillRect(double x, double y, double width, double height) {
             getGraphicsContext2D().fillRect(x, y, width, height);
+
         }
 
         @Override
@@ -262,6 +270,7 @@ public class FXChart<P extends PlotLayout<S>, S> extends Chart<P, S> {
         @Override
         public void fillText(String text, double x, double y) {
             getGraphicsContext2D().fillText(text, x, y);
+
         }
 
         @Override
