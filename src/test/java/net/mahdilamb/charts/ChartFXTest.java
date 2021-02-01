@@ -25,13 +25,6 @@ public class ChartFXTest {
                     ((NumericAxis) chart.getPlot().getXAxis()).setMinorTickSpacing(0.2);
                     chart.getPlot().getYAxis().setMajorTickSpacing(1);
                     ((NumericAxis) chart.getPlot().getYAxis()).setMinorTickSpacing(0.2);
-
-                    try {
-                        chart.saveAsSVG(new File("D:\\mahdi\\Desktop\\123.svg"));
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
                 }
         );
 

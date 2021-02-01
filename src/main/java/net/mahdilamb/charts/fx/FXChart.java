@@ -57,22 +57,24 @@ public class FXChart<P extends PlotLayout<S>, S> extends Chart<P, S> {
     }
 
     public static <S> FXChart<XYPlot<S>, S> show(final String title, double width, double height, final String xAxisLabel, final String yAxisLabel, final S series) {
-        final FXChart<XYPlot<S>,S> chart = chart(title, width, height, xAxisLabel, yAxisLabel, series);
+        final FXChart<XYPlot<S>, S> chart = chart(title, width, height, xAxisLabel, yAxisLabel, series);
         FXChartLauncher.launch(chart);
         return chart;
     }
 
     public static <S> FXChart<XYPlot<S>, S> show(final String title, final String xAxisLabel, final String yAxisLabel, final S series) {
-        final FXChart<XYPlot<S>,S> chart = chart(title, xAxisLabel, yAxisLabel, series);
+        final FXChart<XYPlot<S>, S> chart = chart(title, xAxisLabel, yAxisLabel, series);
         FXChartLauncher.launch(chart);
         return chart;
     }
+
     public static <S> FXChart<XYPlot<S>, S> show(final String title, final String xAxisLabel, final String yAxisLabel, final S series, Consumer<FXChart<XYPlot<S>, S>> beforeShow) {
-        final FXChart<XYPlot<S>,S> chart = chart(title, xAxisLabel, yAxisLabel, series);
+        final FXChart<XYPlot<S>, S> chart = chart(title, xAxisLabel, yAxisLabel, series);
         beforeShow.accept(chart);
         FXChartLauncher.launch(chart);
         return chart;
     }
+
     private final ChartPanel canvas = new ChartPanel();
     private Pane parent;
 
@@ -142,6 +144,11 @@ public class FXChart<P extends PlotLayout<S>, S> extends Chart<P, S> {
     @Override
     protected byte[] bytesFromImage(Object image) throws ClassCastException {
         return FXUtils.convert(((Image) image));
+    }
+
+    @Override
+    protected int argbFromImage(Object image, int x, int y) {
+        return ((Image) image).getPixelReader().getArgb(x, y);
     }
 
     @Override
