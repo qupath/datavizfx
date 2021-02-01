@@ -4,7 +4,6 @@ import net.mahdilamb.charts.axes.NumericAxis;
 import net.mahdilamb.charts.series.Dataset;
 
 import java.io.File;
-import java.io.IOException;
 
 import static net.mahdilamb.charts.PlotFactory.scatter;
 import static net.mahdilamb.charts.fx.FXChart.show;
@@ -18,7 +17,7 @@ public class ChartFXTest {
         show("Sepal length vs width",
                 "Sepal length", "Sepal width",
                 scatter(iris, "sepal_length", "sepal_width", "petal_length")
-                        .setMarker('o')
+                        .setMarker('*')
                         .setName("sepal: length v width"),
                 chart -> {
                     chart.getPlot().getXAxis().setMajorTickSpacing(1);
