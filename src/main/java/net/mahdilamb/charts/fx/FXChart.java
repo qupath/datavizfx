@@ -13,17 +13,13 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Affine;
 import net.mahdilamb.charts.Chart;
-import net.mahdilamb.charts.PlotLayoutImpl;
 import net.mahdilamb.charts.Title;
 import net.mahdilamb.charts.graphics.*;
 import net.mahdilamb.charts.layouts.PlotLayout;
 import net.mahdilamb.charts.layouts.XYPlot;
 import net.mahdilamb.geom2d.geometries.Ellipse;
 
-import java.util.Arrays;
 import java.util.function.Consumer;
-
-import static net.mahdilamb.charts.swing.SwingUtils.ensureCapacity;
 
 public class FXChart<P extends PlotLayout<S>, S> extends Chart<P, S> {
 
@@ -51,7 +47,7 @@ public class FXChart<P extends PlotLayout<S>, S> extends Chart<P, S> {
         return chart(title, DEFAULT_WIDTH, DEFAULT_HEIGHT, xAxisLabel, yAxisLabel, series);
     }
 
-    public static <P extends PlotLayout<S>, S> FXChart<P, S> show(FXChart<P, S> chart) {
+    public static <P extends PlotLayout & net.mahdilamb.charts.layouts.PlotLayout<S>, S> FXChart<P, S> show(FXChart<P, S> chart) {
         FXChartLauncher.launch(chart);
         return chart;
     }
@@ -78,9 +74,8 @@ public class FXChart<P extends PlotLayout<S>, S> extends Chart<P, S> {
     private final ChartPanel canvas = new ChartPanel();
     private Pane parent;
 
-    @SuppressWarnings("unchecked")
     private FXChart(String title, double width, double height, P plot) {
-        super(title, width, height, (PlotLayoutImpl<S>) plot);
+        super(title, width, height, (PlotLayout) plot);
         canvas.setWidth(width);
         canvas.setHeight(height);
     }
@@ -126,6 +121,12 @@ public class FXChart<P extends PlotLayout<S>, S> extends Chart<P, S> {
     }
 
     @Override
+    protected double getCharWidth(Font font, char character) {
+        FontMetrics fontMetrics = Toolkit.getToolkit().getFontLoader().getFontMetrics(FXUtils.convert(font));
+        return fontMetrics.getCharWidth(character);
+    }
+
+    @Override
     protected double getTextLineHeight(Font font) {
         FontMetrics fontMetrics = Toolkit.getToolkit().getFontLoader().getFontMetrics(FXUtils.convert(font));
         return fontMetrics.getLineHeight();
@@ -161,54 +162,6 @@ public class FXChart<P extends PlotLayout<S>, S> extends Chart<P, S> {
     @Override
     protected double getTextLineHeight(Title title) {
         return Toolkit.getToolkit().getFontLoader().getFontMetrics(FXUtils.convert(title.getFont())).getLineHeight();
-    }
-
-    @Override
-    protected double[] getTextLineOffsets(Title title, double maxWidth) {
-        FontMetrics fontMetrics = Toolkit.getToolkit().getFontLoader().getFontMetrics(FXUtils.convert(title.getFont()));
-        int i = 0;
-        int wordStart = 0;
-        final double frac;
-        double[] out = new double[4];
-        int j = 0;
-
-        switch (title.getAlignment()) {
-            case LEFT:
-                frac = 0;
-                break;
-            case CENTER:
-                frac = 0.5;
-                break;
-            case RIGHT:
-                frac = 1;
-                break;
-            default:
-                throw new UnsupportedOperationException();
-        }
-        final String text = title.getText();
-        while (i < text.length()) {
-            char c = text.charAt(i++);
-            if (c == '\n') {
-                out = ensureCapacity(out, j + 1);
-                out[j++] = frac == 0 ? 0 : ((stringWidth(fontMetrics, text, wordStart, i) - maxWidth) * frac);
-                wordStart = i;
-            }
-        }
-        if (wordStart < text.length()) {
-            out = ensureCapacity(out, j + 1);
-            out[j++] = frac == 0 ? 0 : ((stringWidth(fontMetrics, text, wordStart, text.length()) - maxWidth) * frac);
-        }
-        Arrays.fill(out, j, out.length, Double.NaN);
-        return out;
-    }
-
-    private static double stringWidth(final FontMetrics fontMetrics, final String string, int start, int end) {
-        double width = 0;
-        int i = start;
-        while (i < end) {
-            width += fontMetrics.getCharWidth(string.charAt(i++));
-        }
-        return width;
     }
 
 
