@@ -1,6 +1,6 @@
 package net.mahdilamb.charts;
 
-import net.mahdilamb.charts.series.DataFrame;
+import net.mahdilamb.charts.dataframe.DataFrame;
 
 import java.io.File;
 
