@@ -13,17 +13,16 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Affine;
 import net.mahdilamb.charts.Chart;
+import net.mahdilamb.charts.PlotSeries;
 import net.mahdilamb.charts.Title;
 import net.mahdilamb.charts.graphics.*;
-import net.mahdilamb.charts.layouts.PlotLayout;
-import net.mahdilamb.charts.layouts.XYPlot;
 import net.mahdilamb.geom2d.geometries.Ellipse;
 
 import java.util.function.Consumer;
 
-public class FXChart<P extends PlotLayout<S>, S> extends Chart<P, S> {
+public class FXChart<S extends PlotSeries<S>> extends Chart<S> {
 
-    private static <S> FXChart<XYPlot<S>, S> chart(final String title, double width, double height, final String xAxisLabel, double xAxisMin, double xAxisMax, final String yAxisLabel, double yAxisMin, double yAxisMax, final S series) {
+    private static <S extends PlotSeries<S>> FXChart<S> chart(final String title, double width, double height, final String xAxisLabel, double xAxisMin, double xAxisMax, final String yAxisLabel, double yAxisMin, double yAxisMax, final S series) {
         return new FXChart<>(title, width, height, toPlot(xAxisLabel, xAxisMin, xAxisMax, yAxisLabel, yAxisMin, yAxisMax, series));
     }
 
@@ -39,33 +38,33 @@ public class FXChart<P extends PlotLayout<S>, S> extends Chart<P, S> {
      * @param <S>        the type of the series
      * @return the series in its plot
      */
-    private static <S> FXChart<XYPlot<S>, S> chart(final String title, double width, double height, final String xAxisLabel, final String yAxisLabel, final S series) {
+    private static <S extends PlotSeries<S>> FXChart<S> chart(final String title, double width, double height, final String xAxisLabel, final String yAxisLabel, final S series) {
         return chart(title, width, height, xAxisLabel, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, yAxisLabel, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, series);
     }
 
-    private static <S> FXChart<XYPlot<S>, S> chart(final String title, final String xAxisLabel, final String yAxisLabel, final S series) {
+    private static <S extends PlotSeries<S>> FXChart<S> chart(final String title, final String xAxisLabel, final String yAxisLabel, final S series) {
         return chart(title, DEFAULT_WIDTH, DEFAULT_HEIGHT, xAxisLabel, yAxisLabel, series);
     }
 
-    public static <P extends PlotLayout & net.mahdilamb.charts.layouts.PlotLayout<S>, S> FXChart<P, S> show(FXChart<P, S> chart) {
+    public static <S extends PlotSeries<S>> FXChart< S> show(FXChart< S> chart) {
         FXChartLauncher.launch(chart);
         return chart;
     }
 
-    public static <S> FXChart<XYPlot<S>, S> show(final String title, double width, double height, final String xAxisLabel, final String yAxisLabel, final S series) {
-        final FXChart<XYPlot<S>, S> chart = chart(title, width, height, xAxisLabel, yAxisLabel, series);
+    public static <S extends PlotSeries<S>> FXChart<S> show(final String title, double width, double height, final String xAxisLabel, final String yAxisLabel, final S series) {
+        final FXChart<S> chart = chart(title, width, height, xAxisLabel, yAxisLabel, series);
         FXChartLauncher.launch(chart);
         return chart;
     }
 
-    public static <S> FXChart<XYPlot<S>, S> show(final String title, final String xAxisLabel, final String yAxisLabel, final S series) {
-        final FXChart<XYPlot<S>, S> chart = chart(title, xAxisLabel, yAxisLabel, series);
+    public static <S extends PlotSeries<S>> FXChart<S> show(final String title, final String xAxisLabel, final String yAxisLabel, final S series) {
+        final FXChart<S> chart = chart(title, xAxisLabel, yAxisLabel, series);
         FXChartLauncher.launch(chart);
         return chart;
     }
 
-    public static <S> FXChart<XYPlot<S>, S> show(final String title, final String xAxisLabel, final String yAxisLabel, final S series, Consumer<FXChart<XYPlot<S>, S>> beforeShow) {
-        final FXChart<XYPlot<S>, S> chart = chart(title, xAxisLabel, yAxisLabel, series);
+    public static <S extends PlotSeries<S>> FXChart<S> show(final String title, final String xAxisLabel, final String yAxisLabel, final S series, Consumer<FXChart<S>> beforeShow) {
+        final FXChart<S> chart = chart(title, xAxisLabel, yAxisLabel, series);
         beforeShow.accept(chart);
         FXChartLauncher.launch(chart);
         return chart;
@@ -74,8 +73,8 @@ public class FXChart<P extends PlotLayout<S>, S> extends Chart<P, S> {
     private final ChartPanel canvas = new ChartPanel();
     private Pane parent;
 
-    private FXChart(String title, double width, double height, P plot) {
-        super(title, width, height, (PlotLayout) plot);
+    private FXChart(String title, double width, double height, PlotLayout plot) {
+        super(title, width, height, plot);
         canvas.setWidth(width);
         canvas.setHeight(height);
     }
