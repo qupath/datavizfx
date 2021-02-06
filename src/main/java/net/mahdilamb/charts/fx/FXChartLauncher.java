@@ -13,7 +13,7 @@ import java.io.IOException;
  */
 public final class FXChartLauncher extends Application {
 
-    private static FXChart<?, ?> chart;
+    private static FXChart<?> chart;
 
     @Override
     public void start(Stage stage) {
@@ -30,7 +30,7 @@ public final class FXChartLauncher extends Application {
      *
      * @param chart the chart to show
      */
-    public static void launch(FXChart<?, ?> chart) {
+    public static void launch(FXChart<?> chart) {
         FXChartLauncher.chart = chart;
         launch(FXChartLauncher.class, (String) null);
 
