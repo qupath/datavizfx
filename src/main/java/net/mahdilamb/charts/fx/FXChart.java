@@ -22,29 +22,6 @@ import java.util.function.Consumer;
 
 public class FXChart<S extends PlotSeries<S>> extends Chart<S> {
 
-    private static <S extends PlotSeries<S>> FXChart<S> chart(final String title, double width, double height, final String xAxisLabel, double xAxisMin, double xAxisMax, final String yAxisLabel, double yAxisMin, double yAxisMax, final S series) {
-        return new FXChart<>(title, width, height, toPlot(xAxisLabel, xAxisMin, xAxisMax, yAxisLabel, yAxisMin, yAxisMax, series));
-    }
-
-    /**
-     * Convert a series to a chart
-     *
-     * @param title      the title of the chart
-     * @param width      the width of the chart
-     * @param height     the height of the chart
-     * @param xAxisLabel the label of the x axis
-     * @param yAxisLabel the label of the y axis
-     * @param series     the series
-     * @param <S>        the type of the series
-     * @return the series in its plot
-     */
-    private static <S extends PlotSeries<S>> FXChart<S> chart(final String title, double width, double height, final String xAxisLabel, final String yAxisLabel, final S series) {
-        return chart(title, width, height, xAxisLabel, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, yAxisLabel, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, series);
-    }
-
-    private static <S extends PlotSeries<S>> FXChart<S> chart(final String title, final String xAxisLabel, final String yAxisLabel, final S series) {
-        return chart(title, DEFAULT_WIDTH, DEFAULT_HEIGHT, xAxisLabel, yAxisLabel, series);
-    }
 
     public static <S extends PlotSeries<S>> FXChart< S> show(FXChart< S> chart) {
         FXChartLauncher.launch(chart);
