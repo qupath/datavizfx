@@ -18,39 +18,37 @@ import net.mahdilamb.charts.Title;
 import net.mahdilamb.charts.graphics.*;
 import net.mahdilamb.geom2d.geometries.Ellipse;
 
-import java.util.function.Consumer;
+public class FXChart<S extends PlotSeries<S>> extends Chart<S, Image> {
 
-public class FXChart<S extends PlotSeries<S>> extends Chart<S> {
+    /*
+        public static <S extends PlotSeries<S>> FXChart< S> show(FXChart< S> chart) {
+            FXChartLauncher.launch(chart);
+            return chart;
+        }
 
+        public static <S extends PlotSeries<S>> FXChart<S> show(final String title, double width, double height, final String xAxisLabel, final String yAxisLabel, final S series) {
+            final FXChart<S> chart = chart(title, width, height, xAxisLabel, yAxisLabel, series);
+            FXChartLauncher.launch(chart);
+            return chart;
+        }
 
-    public static <S extends PlotSeries<S>> FXChart< S> show(FXChart< S> chart) {
-        FXChartLauncher.launch(chart);
-        return chart;
-    }
+        public static <S extends PlotSeries<S>> FXChart<S> show(final String title, final String xAxisLabel, final String yAxisLabel, final S series) {
+            final FXChart<S> chart = chart(title, xAxisLabel, yAxisLabel, series);
+            FXChartLauncher.launch(chart);
+            return chart;
+        }
 
-    public static <S extends PlotSeries<S>> FXChart<S> show(final String title, double width, double height, final String xAxisLabel, final String yAxisLabel, final S series) {
-        final FXChart<S> chart = chart(title, width, height, xAxisLabel, yAxisLabel, series);
-        FXChartLauncher.launch(chart);
-        return chart;
-    }
-
-    public static <S extends PlotSeries<S>> FXChart<S> show(final String title, final String xAxisLabel, final String yAxisLabel, final S series) {
-        final FXChart<S> chart = chart(title, xAxisLabel, yAxisLabel, series);
-        FXChartLauncher.launch(chart);
-        return chart;
-    }
-
-    public static <S extends PlotSeries<S>> FXChart<S> show(final String title, final String xAxisLabel, final String yAxisLabel, final S series, Consumer<FXChart<S>> beforeShow) {
-        final FXChart<S> chart = chart(title, xAxisLabel, yAxisLabel, series);
-        beforeShow.accept(chart);
-        FXChartLauncher.launch(chart);
-        return chart;
-    }
-
+        public static <S extends PlotSeries<S>> FXChart<S> show(final String title, final String xAxisLabel, final String yAxisLabel, final S series, Consumer<FXChart<S>> beforeShow) {
+            final FXChart<S> chart = chart(title, xAxisLabel, yAxisLabel, series);
+            beforeShow.accept(chart);
+            FXChartLauncher.launch(chart);
+            return chart;
+        }
+    */
     private final ChartPanel canvas = new ChartPanel();
     private Pane parent;
 
-    private FXChart(String title, double width, double height, PlotLayout plot) {
+    private FXChart(String title, double width, double height, PlotImpl<S> plot) {
         super(title, width, height, plot);
         canvas.setWidth(width);
         canvas.setHeight(height);
@@ -109,23 +107,23 @@ public class FXChart<S extends PlotSeries<S>> extends Chart<S> {
     }
 
     @Override
-    protected double getImageWidth(Object image) throws ClassCastException {
-        return ((Image) image).getWidth();
+    protected double getImageWidth(Image image) {
+        return image.getWidth();
     }
 
     @Override
-    protected double getImageHeight(Object image) throws ClassCastException {
-        return ((Image) image).getHeight();
+    protected double getImageHeight(Image image) {
+        return image.getHeight();
     }
 
     @Override
-    protected byte[] bytesFromImage(Object image) throws ClassCastException {
-        return FXUtils.convert(((Image) image));
+    protected byte[] bytesFromImage(Image image) {
+        return FXUtils.convert(image);
     }
 
     @Override
-    protected int argbFromImage(Object image, int x, int y) {
-        return ((Image) image).getPixelReader().getArgb(x, y);
+    protected int argbFromImage(Image image, int x, int y) {
+        return image.getPixelReader().getArgb(x, y);
     }
 
     @Override
@@ -151,7 +149,7 @@ public class FXChart<S extends PlotSeries<S>> extends Chart<S> {
         node.getChildren().add(canvas);
         StackPane.setAlignment(canvas, Pos.TOP_LEFT);
         setBackgroundColor(getBackgroundColor());
-        requestLayout();
+        redraw();
     }
 
     private static final class ChartPanel extends Canvas implements ChartCanvas<Image> {
@@ -161,6 +159,11 @@ public class FXChart<S extends PlotSeries<S>> extends Chart<S> {
         final Affine affine = new Affine();
 
         ChartPanel() {
+        }
+
+        @Override
+        public void resetRect(double x, double y, double width, double height) {
+            getGraphicsContext2D().clearRect(x, y, width, height);
         }
 
         @Override
