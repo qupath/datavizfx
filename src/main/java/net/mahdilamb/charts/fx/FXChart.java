@@ -20,31 +20,18 @@ import net.mahdilamb.geom2d.geometries.Ellipse;
 
 public class FXChart<S extends PlotSeries<S>> extends Chart<S, Image> {
 
-    /*
-        public static <S extends PlotSeries<S>> FXChart< S> show(FXChart< S> chart) {
-            FXChartLauncher.launch(chart);
-            return chart;
-        }
+    @SafeVarargs
+    public static <S extends PlotSeries<S>> FXChart<S> show(S... series) {
+        return show(null, DEFAULT_WIDTH, DEFAULT_HEIGHT, series);
+    }
 
-        public static <S extends PlotSeries<S>> FXChart<S> show(final String title, double width, double height, final String xAxisLabel, final String yAxisLabel, final S series) {
-            final FXChart<S> chart = chart(title, width, height, xAxisLabel, yAxisLabel, series);
-            FXChartLauncher.launch(chart);
-            return chart;
-        }
+    @SafeVarargs
+    public static <S extends PlotSeries<S>> FXChart<S> show(final String title, double width, double height, final S... series) {
+        final FXChart<S> chart = new FXChart<>(title, width, height, getGroupedLayoutForSeries(series));
+        FXChartLauncher.launch(chart);
+        return chart;
+    }
 
-        public static <S extends PlotSeries<S>> FXChart<S> show(final String title, final String xAxisLabel, final String yAxisLabel, final S series) {
-            final FXChart<S> chart = chart(title, xAxisLabel, yAxisLabel, series);
-            FXChartLauncher.launch(chart);
-            return chart;
-        }
-
-        public static <S extends PlotSeries<S>> FXChart<S> show(final String title, final String xAxisLabel, final String yAxisLabel, final S series, Consumer<FXChart<S>> beforeShow) {
-            final FXChart<S> chart = chart(title, xAxisLabel, yAxisLabel, series);
-            beforeShow.accept(chart);
-            FXChartLauncher.launch(chart);
-            return chart;
-        }
-    */
     private final ChartPanel canvas = new ChartPanel();
     private Pane parent;
 
