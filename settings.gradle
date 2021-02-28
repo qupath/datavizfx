@@ -1,10 +1,6 @@
 rootProject.name = 'chartsfx'
 include 'charts'
 
-include ":geom2d"
-project(":geom2d").projectDir = new File("../geom2d/")
-include ":statistics"
-project(":statistics").projectDir = new File("/charts/statistics/")
 include ':dataframe'
 project(":dataframe").projectDir = new File("/charts/dataframe/")
 

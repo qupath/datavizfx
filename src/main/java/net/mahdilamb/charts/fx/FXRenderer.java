@@ -6,39 +6,27 @@ import com.sun.javafx.tk.Toolkit;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Affine;
-import net.mahdilamb.charts.Chart;
-import net.mahdilamb.charts.PlotSeries;
+
+import net.mahdilamb.charts.Figure;
+import net.mahdilamb.charts.Renderer;
 import net.mahdilamb.charts.Title;
 import net.mahdilamb.charts.graphics.*;
-import net.mahdilamb.geom2d.geometries.Ellipse;
+import net.mahdilamb.charts.utils.Numbers;
+import net.mahdilamb.colormap.Color;
 
-public class FXChart<S extends PlotSeries<S>> extends Chart<S, Image> {
-
-    @SafeVarargs
-    public static <S extends PlotSeries<S>> FXChart<S> show(S... series) {
-        return show(null, DEFAULT_WIDTH, DEFAULT_HEIGHT, series);
-    }
-
-    @SafeVarargs
-    public static <S extends PlotSeries<S>> FXChart<S> show(final String title, double width, double height, final S... series) {
-        final FXChart<S> chart = new FXChart<>(title, width, height, getGroupedLayoutForSeries(series));
-        FXChartLauncher.launch(chart);
-        return chart;
-    }
+public class FXRenderer extends Renderer< Image> {
 
     private final ChartPanel canvas = new ChartPanel();
     private Pane parent;
 
-    private FXChart(String title, double width, double height, PlotImpl<S> plot) {
-        super(title, width, height, plot);
-        canvas.setWidth(width);
-        canvas.setHeight(height);
+    public FXRenderer(Figure figure) {
+        super(figure);
+        canvas.setWidth(figure.getWidth());
+        canvas.setHeight(figure.getHeight());
     }
 
     @Override
@@ -112,14 +100,14 @@ public class FXChart<S extends PlotSeries<S>> extends Chart<S, Image> {
     protected int argbFromImage(Image image, int x, int y) {
         return image.getPixelReader().getArgb(x, y);
     }
-
+/* todo
     @Override
     protected void backgroundChanged() {
         if (getBackgroundColor() != null) {
             parent.setBackground(new Background(new BackgroundFill(FXUtils.convert(getBackgroundColor()), null, null)));
         }
     }
-
+*/
     @Override
     protected double getTextLineHeight(Title title) {
         return Toolkit.getToolkit().getFontLoader().getFontMetrics(FXUtils.convert(title.getFont())).getLineHeight();
@@ -135,14 +123,15 @@ public class FXChart<S extends PlotSeries<S>> extends Chart<S, Image> {
         this.parent = node;
         node.getChildren().add(canvas);
         StackPane.setAlignment(canvas, Pos.TOP_LEFT);
-        setBackgroundColor(getBackgroundColor());
-        redraw();
+        refresh();
+       /* todo setBackgroundColor(getBackgroundColor());
+        redraw();*/
     }
 
     private static final class ChartPanel extends Canvas implements ChartCanvas<Image> {
         private final Text testText = new Text("Test");
-        Fill currentFill = Fill.BLACK_FILL;
-        Stroke currentStroke = Stroke.BLACK_STROKE;
+        Paint currentFill = Paint.BLACK_FILL;
+        Stroke currentStroke = Stroke.SOLID;
         final Affine affine = new Affine();
 
         ChartPanel() {
@@ -200,7 +189,7 @@ public class FXChart<S extends PlotSeries<S>> extends Chart<S, Image> {
         }
 
         @Override
-        public void setFill(Fill fill) {
+        public void setFill(Paint fill) {
             this.currentFill = fill;
             getGraphicsContext2D().setFill(FXUtils.convert(fill));
         }
@@ -253,23 +242,23 @@ public class FXChart<S extends PlotSeries<S>> extends Chart<S, Image> {
                     getGraphicsContext2D().beginPath();
                     getGraphicsContext2D().moveTo(cx + a, cy);
                     getGraphicsContext2D().bezierCurveTo(
-                            cx + a, cy - (Ellipse.MORTENSEN_CONSTANT * b),
-                            cx + (Ellipse.MORTENSEN_CONSTANT * a), cy - b,
+                            cx + a, cy - (Numbers.MORTENSEN_CONSTANT * b),
+                            cx + (Numbers.MORTENSEN_CONSTANT * a), cy - b,
                             cx, cy - b
                     );
                     getGraphicsContext2D().bezierCurveTo(
-                            cx - (Ellipse.MORTENSEN_CONSTANT * a), cy - b,
-                            cx - a, cy - (Ellipse.MORTENSEN_CONSTANT * b),
+                            cx - (Numbers.MORTENSEN_CONSTANT * a), cy - b,
+                            cx - a, cy - (Numbers.MORTENSEN_CONSTANT * b),
                             cx - a, cy
                     );
                     getGraphicsContext2D().bezierCurveTo(
-                            cx - a, cy + (Ellipse.MORTENSEN_CONSTANT * b),
-                            cx - (Ellipse.MORTENSEN_CONSTANT * a), cy + b,
+                            cx - a, cy + (Numbers.MORTENSEN_CONSTANT * b),
+                            cx - (Numbers.MORTENSEN_CONSTANT * a), cy + b,
                             cx, cy + b
                     );
                     getGraphicsContext2D().bezierCurveTo(
-                            cx + (Ellipse.MORTENSEN_CONSTANT * a), cy + b,
-                            cx + a, cy + (Ellipse.MORTENSEN_CONSTANT * b),
+                            cx + (Numbers.MORTENSEN_CONSTANT * a), cy + b,
+                            cx + a, cy + (Numbers.MORTENSEN_CONSTANT * b),
                             cx + a, cy
                     );
                     getGraphicsContext2D().closePath();
@@ -301,7 +290,16 @@ public class FXChart<S extends PlotSeries<S>> extends Chart<S, Image> {
         public void setStroke(Stroke stroke) {
             this.currentStroke = stroke;
             getGraphicsContext2D().setLineWidth(stroke.getWidth());
-            getGraphicsContext2D().setStroke(FXUtils.convert(stroke.getColor()));
+            getGraphicsContext2D().setLineCap(FXUtils.convert(stroke.getEndCap()));
+            getGraphicsContext2D().setLineJoin(FXUtils.convert(stroke.getLineJoin()));
+            getGraphicsContext2D().setMiterLimit(stroke.getMiterLimit());
+            getGraphicsContext2D().setLineDashOffset(stroke.getDashOffset());
+            getGraphicsContext2D().setLineDashes(stroke.getDashes());
+        }
+
+        @Override
+        public void setStroke(Color color) {
+            getGraphicsContext2D().setStroke(FXUtils.convert(color));
         }
 
         @Override

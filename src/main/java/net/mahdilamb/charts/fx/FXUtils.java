@@ -2,13 +2,18 @@ package net.mahdilamb.charts.fx;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
-import javafx.scene.paint.*;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.RadialGradient;
+import javafx.scene.paint.Stop;
+import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.shape.StrokeLineJoin;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
-import net.mahdilamb.charts.graphics.Fill;
+import net.mahdilamb.charts.graphics.Paint;
+import net.mahdilamb.charts.graphics.Stroke;
 import net.mahdilamb.charts.utils.StringUtils;
-import net.mahdilamb.geom2d.geometries.Geometries;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -63,25 +68,31 @@ final class FXUtils {
         ImageIO.write(convertToBufferedImage(img), "png", file);
     }
 
+    private static double distance(final double ax, final double ay, final double bx, final double by) {
+        final double deltaX = ax - bx;
+        final double deltaY = ay - by;
+        return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    }
+
     /**
      * Convert a fill to a javafx paint
      *
      * @param fill the fill to convert
      * @return the javafx paint
      */
-    public static Paint convert(Fill fill) {
+    public static javafx.scene.paint.Paint convert(Paint fill) {
         if (fill.isGradient()) {
-            final Fill.Gradient g = fill.getGradient();
+            final Paint.Gradient g = fill.getGradient();
             final Stop[] stops = new Stop[g.getColorMap().size()];
             int i = 0;
             for (final Map.Entry<Float, net.mahdilamb.colormap.Color> entry : g.getColorMap().entrySet()) {
                 stops[i] = new Stop(entry.getKey(), convert(entry.getValue()));
                 ++i;
             }
-            if (g.getType() == Fill.GradientType.LINEAR) {
+            if (g.getType() == Paint.GradientType.LINEAR) {
                 return new LinearGradient(g.getStartX(), g.getStartY(), g.getEndX(), g.getEndY(), false, CycleMethod.NO_CYCLE, stops);
             } else {
-                return new RadialGradient(g.getStartX(), g.getStartY(), g.getEndX(), g.getEndY(), Geometries.distance(g.getStartX(), g.getStartY(), g.getEndX(), g.getEndY()), false, CycleMethod.NO_CYCLE, stops);
+                return new RadialGradient(g.getStartX(), g.getStartY(), g.getEndX(), g.getEndY(), distance(g.getStartX(), g.getStartY(), g.getEndX(), g.getEndY()), false, CycleMethod.NO_CYCLE, stops);
             }
         } else {
             return new javafx.scene.paint.Color(fill.getColor().red(), fill.getColor().green(), fill.getColor().blue(), fill.getColor().alpha());
@@ -113,5 +124,31 @@ final class FXUtils {
         }
         return Font.font(StringUtils.snakeToTitleCase(font.getFamily().name()), weight, posture, font.getSize());
 
+    }
+
+    public static StrokeLineCap convert(Stroke.EndCap endCap) {
+        switch (endCap) {
+            case BUTT:
+                return StrokeLineCap.BUTT;
+            case ROUND:
+                return StrokeLineCap.ROUND;
+            case SQUARE:
+                return StrokeLineCap.SQUARE;
+            default:
+                throw new UnsupportedOperationException();
+        }
+    }
+
+    public static StrokeLineJoin convert(Stroke.LineJoin lineJoin) {
+        switch (lineJoin) {
+            case ROUND:
+                return StrokeLineJoin.ROUND;
+            case BEVEL:
+                return StrokeLineJoin.BEVEL;
+            case MITER:
+                return StrokeLineJoin.MITER;
+            default:
+                throw new UnsupportedOperationException();
+        }
     }
 }

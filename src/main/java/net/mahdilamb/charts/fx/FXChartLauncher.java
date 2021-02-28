@@ -4,23 +4,22 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-
-import java.io.File;
-import java.io.IOException;
+import net.mahdilamb.charts.Figure;
 
 /**
  * Launcher for FX charts
  */
 public final class FXChartLauncher extends Application {
 
-    private static FXChart<?> chart;
+    private static FXRenderer chart;
+
 
     @Override
     public void start(Stage stage) {
         final StackPane root = new StackPane();
-        final Scene scene = new Scene(root, chart.getWidth(), chart.getHeight());
+        final Scene scene = new Scene(root, chart.getFigure().getWidth(), chart.getFigure().getHeight());
         chart.addTo(root);
-        stage.setTitle(chart.getTitle().getText());
+        // stage.setTitle(chart.getTitle().getText());
         stage.setScene(scene);
         stage.show();
     }
@@ -29,11 +28,17 @@ public final class FXChartLauncher extends Application {
      * Show the given chart
      *
      * @param chart the chart to show
+     * @return the chart
      */
-    public static void launch(FXChart<?> chart) {
+    public static FXRenderer launch(FXRenderer chart) {
         FXChartLauncher.chart = chart;
         launch(FXChartLauncher.class, (String) null);
+        return chart;
+    }
 
+
+    public static FXRenderer launch(Figure fig) {
+        return launch(new FXRenderer(fig));
     }
 
 }
