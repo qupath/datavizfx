@@ -1,4 +1,4 @@
-package net.mahdilamb.charts.fx;
+package net.mahdilamb.dataviz.fx;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
@@ -11,9 +11,9 @@ import javafx.scene.shape.StrokeLineJoin;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
-import net.mahdilamb.charts.graphics.Paint;
-import net.mahdilamb.charts.graphics.Stroke;
-import net.mahdilamb.charts.utils.StringUtils;
+import net.mahdilamb.dataviz.graphics.Paint;
+import net.mahdilamb.dataviz.graphics.Stroke;
+import net.mahdilamb.dataviz.utils.StringUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -99,7 +99,7 @@ final class FXUtils {
         }
     }
 
-    public static Font convert(net.mahdilamb.charts.graphics.Font font) {
+    public static Font convert(net.mahdilamb.dataviz.graphics.Font font) {
         final FontPosture posture;
         switch (font.getStyle()) {
             case ITALIC:

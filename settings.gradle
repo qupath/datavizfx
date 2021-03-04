@@ -1,6 +1,3 @@
-rootProject.name = 'chartsfx'
-include 'charts'
-
-include ':dataframe'
-project(":dataframe").projectDir = new File("/charts/dataframe/")
-
+rootProject.name = 'datavizfx'
+include ":dataviz"
+project(":dataviz").projectDir = new File("../dataviz/")

@@ -1,4 +1,4 @@
-package net.mahdilamb.charts.fx;
+package net.mahdilamb.dataviz.fx;
 
 
 import com.sun.javafx.tk.FontMetrics;
@@ -6,27 +6,121 @@ import com.sun.javafx.tk.Toolkit;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.shape.FillRule;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Affine;
-
-import net.mahdilamb.charts.Figure;
-import net.mahdilamb.charts.Renderer;
-import net.mahdilamb.charts.Title;
-import net.mahdilamb.charts.graphics.*;
-import net.mahdilamb.charts.utils.Numbers;
 import net.mahdilamb.colormap.Color;
+import net.mahdilamb.dataviz.Figure;
+import net.mahdilamb.dataviz.PlotLayout;
+import net.mahdilamb.dataviz.Renderer;
+import net.mahdilamb.dataviz.Selection;
+import net.mahdilamb.dataviz.graphics.*;
+import net.mahdilamb.dataviz.utils.Numbers;
 
-public class FXRenderer extends Renderer< Image> {
+import java.util.HashMap;
+import java.util.Map;
+
+public class FXRenderer extends Renderer<Image> {
 
     private final ChartPanel canvas = new ChartPanel();
-    private Pane parent;
+    private final Map<PlotLayout, Selection> selections = new HashMap<>();
+    private final Canvas overlay = new Canvas();
+    double startX, startY;
+    double scrollFactor = -0.001;
+    boolean horizontalInputEnabled = true,
+            verticalInputEnabled = true;
 
     public FXRenderer(Figure figure) {
         super(figure);
         canvas.setWidth(figure.getWidth());
         canvas.setHeight(figure.getHeight());
+        overlay.setHeight(figure.getHeight());
+        overlay.setWidth(figure.getWidth());
+        overlay.setOnScroll(this::scroll);
+        overlay.setOnMousePressed(this::pressed);
+        overlay.setOnMouseDragged(this::dragged);
+        overlay.setOnMouseClicked(this::clicked);
+        overlay.getGraphicsContext2D().setFill(new javafx.scene.paint.Color(.2, .2, .2, .2));
+        overlay.getGraphicsContext2D().setStroke(new javafx.scene.paint.Color(.8, .8, .8, 1));
+
+        overlay.getGraphicsContext2D().setFillRule(FillRule.EVEN_ODD);
+    }
+
+    void clicked(MouseEvent e) {
+        final Selection.Polygon s = (Selection.Polygon) selections.getOrDefault(figure.getLayout(), new Selection.Polygon(overlay.getGraphicsContext2D().getFillRule() == FillRule.NON_ZERO));
+        if (e.getButton() == MouseButton.SECONDARY) {
+            overlay.getGraphicsContext2D().clearRect(0, 0, overlay.getWidth(), overlay.getHeight());
+            s.clear(figure.getLayout());
+            selections.remove(figure.getLayout());
+            forceRefresh();
+            return;
+        }
+        if (!e.isControlDown()) {
+            return;
+        }
+        if (e.getClickCount() == 1) {
+            s.add(figure.getLayout().getXAxis().getValueFromPosition(e.getX()), figure.getLayout().getYAxis().getValueFromPosition(e.getY()));
+        } else {
+            s.close();
+            s.apply(figure.getLayout());
+            forceRefresh();
+        }
+        drawSelection(figure.getLayout(), s);
+
+        selections.put(figure.getLayout(), s);
+    }
+
+    void drawSelection(PlotLayout layout, Selection.Polygon selection) {
+        overlay.getGraphicsContext2D().clearRect(0, 0, overlay.getWidth(), overlay.getHeight());
+        if (selection == null || selection.size() <= 1) {
+            return;
+        }
+        overlay.getGraphicsContext2D().beginPath();
+        if (selection.size() > 1) {
+            overlay.getGraphicsContext2D().moveTo(transformX(layout, selection.getX(0)), transformY(layout, selection.getY(0)));
+            for (int i = 1; i < selection.size(); ++i) {
+                overlay.getGraphicsContext2D().lineTo(transformX(layout, selection.getX(i)), transformY(layout, selection.getY(i)));
+            }
+            overlay.getGraphicsContext2D().closePath();
+            overlay.getGraphicsContext2D().fill();
+            overlay.getGraphicsContext2D().stroke();
+        }
+
+    }
+
+    void drawSelection() {
+        drawSelection(figure.getLayout(), (Selection.Polygon) selections.get(figure.getLayout()));
+    }
+
+    void dragged(MouseEvent e) {
+        mouseDragged(e.getX(), e.getY());
+        //TODO clip normally
+        overlay.setClip(new Rectangle(getX(figure.getLayout().getXAxis()), getY(figure.getLayout().getYAxis()), getWidth(figure.getLayout().getXAxis()), getHeight(figure.getLayout().getYAxis())));
+        drawSelection();
+        startX = e.getX();
+        startY = e.getY();
+    }
+
+    void pressed(MouseEvent e) {
+        if (e.isControlDown()) {
+            horizontalInputEnabled = verticalInputEnabled = false;
+            return;
+        }
+        mouseInit(e.getX(), e.getY());
+
+    }
+
+    void scroll(ScrollEvent e) {
+        mouseWheelMoved(e.getX(), e.getY(), (e.getDeltaY() * scrollFactor));
+        //TODO clip normally
+        overlay.setClip(new Rectangle(getX(figure.getLayout().getXAxis()), getY(figure.getLayout().getYAxis()), getWidth(figure.getLayout().getXAxis()), getHeight(figure.getLayout().getYAxis())));
+        drawSelection();
     }
 
     @Override
@@ -34,27 +128,6 @@ public class FXRenderer extends Renderer< Image> {
         return canvas;
     }
 
-    @Override
-    protected double getTextLineHeight(Title title, double maxWidth, double lineSpacing) {
-        FontMetrics fontMetrics = Toolkit.getToolkit().getFontLoader().getFontMetrics(FXUtils.convert(title.getFont()));
-        final String text = title.getText();
-        int lineCount = 0;
-        int i = 0;
-        double currentWidth = 0;
-        while (i < text.length()) {
-            char c = text.charAt(i++);
-            currentWidth += fontMetrics.getCharWidth(c);
-            if (Character.isWhitespace(c) && i != 0 && currentWidth > maxWidth) {
-                ++lineCount;
-                currentWidth = 0;
-
-            }
-        }
-        if (currentWidth > 0) {
-            ++lineCount;
-        }
-        return lineSpacing * lineCount * fontMetrics.getLineHeight();
-    }
 
     @Override
     protected double getTextBaselineOffset(Font font) {
@@ -100,14 +173,15 @@ public class FXRenderer extends Renderer< Image> {
     protected int argbFromImage(Image image, int x, int y) {
         return image.getPixelReader().getArgb(x, y);
     }
-/* todo
-    @Override
-    protected void backgroundChanged() {
-        if (getBackgroundColor() != null) {
-            parent.setBackground(new Background(new BackgroundFill(FXUtils.convert(getBackgroundColor()), null, null)));
+
+    /* todo
+        @Override
+        protected void backgroundChanged() {
+            if (getBackgroundColor() != null) {
+                parent.setBackground(new Background(new BackgroundFill(FXUtils.convert(getBackgroundColor()), null, null)));
+            }
         }
-    }
-*/
+    */
     @Override
     protected double getTextLineHeight(Title title) {
         return Toolkit.getToolkit().getFontLoader().getFontMetrics(FXUtils.convert(title.getFont())).getLineHeight();
@@ -120,9 +194,9 @@ public class FXRenderer extends Renderer< Image> {
      * @param node the node to add to
      */
     public void addTo(Pane node) {
-        this.parent = node;
-        node.getChildren().add(canvas);
+        node.getChildren().addAll(canvas, overlay);
         StackPane.setAlignment(canvas, Pos.TOP_LEFT);
+        StackPane.setAlignment(overlay, Pos.TOP_LEFT);
         refresh();
        /* todo setBackgroundColor(getBackgroundColor());
         redraw();*/

@@ -1,10 +1,10 @@
-package net.mahdilamb.charts.fx;
+package net.mahdilamb.dataviz.fx;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import net.mahdilamb.charts.Figure;
+import net.mahdilamb.dataviz.Figure;
 
 /**
  * Launcher for FX charts

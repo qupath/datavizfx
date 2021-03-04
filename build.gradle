@@ -1,29 +1,30 @@
-plugins {
-    id 'org.openjfx.javafxplugin' version '0.0.9'
-}
-allprojects {
-    plugins.withType(JavaPlugin) {
-        dependencies {
-            testImplementation 'junit:junit:4.13'
-        }
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
 
-        compileJava {
-            sourceCompatibility = 9;
-            targetCompatibility = 9;
-        }
-        repositories {
-            mavenCentral()
-        }
-        test {
-            useJUnit()
-        }
-        javadoc {
-            options.tags = ["apiNote", "implNote"]
-        }
+    }
+    dependencies {
+        classpath("com.bmuschko:gradle-nexus-plugin:2.3.1")
     }
 }
-group 'org.example'
-version '1.0-SNAPSHOT'
+
+plugins {
+    id 'java'
+    id("maven")
+    id("signing")
+    id 'org.openjfx.javafxplugin' version '0.0.9'
+
+}
+apply plugin: "com.bmuschko.nexus"
+compileJava {
+    sourceCompatibility = JavaVersion.VERSION_1_9
+//will work with Java 1.8, but this is required as there is a module-info.java
+    targetCompatibility = JavaVersion.VERSION_1_9
+}
+
+group 'net.mahdilamb'
+version '0.1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -34,7 +35,8 @@ repositories {
 
 dependencies {
     testCompile("junit:junit:4.13")
-    compile project(":charts")
+   // compile 'net.mahdilamb:charts:0.1.0-SNAPSHOT'
+    compile project(":dataviz")
 
 }
 
@@ -45,9 +47,55 @@ javafx {
     version = "15.0.1"
     modules = ['javafx.controls']
 }
-
+javadoc {
+    options.tags = ["apiNote", "implNote"]
+}
 
 task fxTest(type: JavaExec, dependsOn: ['testClasses']) {
     classpath sourceSets.test.runtimeClasspath
-    main = "net.mahdilamb.charts.ChartFXTest"
+    main = "net.mahdilamb.dataviz.ChartFXTest"
+}
+modifyPom {
+
+    project {
+        name = "datavizfx"
+        description = "Charts FX"
+        url = "https://github.com/mahdilamb/chartsfx"
+        inceptionYear = "2020"
+
+        licenses {
+            license {
+                name = "The Apache Software License, Version 2.0"
+                url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                distribution = "repo"
+            }
+        }
+        developers {
+            developer {
+                id = "mahdilamb"
+                name = "Mahdi Lamb"
+                email = "mahdilamb[at]gmail[dot]com"
+            }
+        }
+        scm {
+            url = "https://github.com/mahdilamb/chartsfx"
+            connection = "scm:https://mahdilamb@github.com/mahdilamb/chartsfx.git"
+            developerConnection = "scm:git://github.com/mahdilamb/chartsfx.git"
+        }
+
+
+    }
+
+}
+
+extraArchive {
+    sources = true
+    tests = true
+    javadoc = true
+}
+
+nexus {
+    sign = !version.endsWith("SNAPSHOT")
+    repositoryUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+    snapshotRepositoryUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
 }
