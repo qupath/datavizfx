@@ -205,7 +205,7 @@ public class FXRenderer extends Renderer<Image> {
 
     private static final class ChartPanel extends Canvas implements ChartCanvas<Image> {
         private final Text testText = new Text("Test");
-        final Variant<Color, Gradient> currentFill = Variant.ofLeft(Color.BLACK);
+        final Variant<Color, Gradient> currentFill = Variant.ofA(Color.BLACK);
         Stroke currentStroke = Stroke.SOLID;
         final Affine affine = new Affine();
 
@@ -266,13 +266,13 @@ public class FXRenderer extends Renderer<Image> {
 
         @Override
         public void setFill(Color color) {
-            this.currentFill.setToLeft(color);
+            this.currentFill.setToA(color);
             getGraphicsContext2D().setFill(FXUtils.convert(color));
         }
 
         @Override
         public void setFill(Gradient gradient) {
-            this.currentFill.setToRight(gradient);
+            this.currentFill.setToB(gradient);
             getGraphicsContext2D().setFill(FXUtils.convert(gradient));
         }
 
