@@ -25,6 +25,8 @@ public class ChartFXTest {
                                 .setMarkerMode("markers")
                                 .setColormap("viridis")
                                 .setColors(random_y1)
+                                .showEdges(true)
+                                //.setSize(4)
                                 .setSizes(random_y2)
                                 .setXLabel("x")
                                 .setYLabel("y")

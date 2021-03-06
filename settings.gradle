@@ -1,3 +1,5 @@
 rootProject.name = 'datavizfx'
 include ":dataviz"
 project(":dataviz").projectDir = new File("../dataviz/")
+include ":dataframe"
+project(":dataframe").projectDir = new File("../dataframe/")

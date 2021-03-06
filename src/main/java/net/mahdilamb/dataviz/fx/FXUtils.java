@@ -11,7 +11,7 @@ import javafx.scene.shape.StrokeLineJoin;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
-import net.mahdilamb.dataviz.graphics.Paint;
+import net.mahdilamb.dataviz.graphics.Gradient;
 import net.mahdilamb.dataviz.graphics.Stroke;
 import net.mahdilamb.dataviz.utils.StringUtils;
 
@@ -74,31 +74,20 @@ final class FXUtils {
         return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     }
 
-    /**
-     * Convert a fill to a javafx paint
-     *
-     * @param fill the fill to convert
-     * @return the javafx paint
-     */
-    public static javafx.scene.paint.Paint convert(Paint fill) {
-        if (fill.isGradient()) {
-            final Paint.Gradient g = fill.getGradient();
+    public static javafx.scene.paint.Paint convert(Gradient g) {
             final Stop[] stops = new Stop[g.getColorMap().size()];
             int i = 0;
             for (final Map.Entry<Float, net.mahdilamb.colormap.Color> entry : g.getColorMap().entrySet()) {
                 stops[i] = new Stop(entry.getKey(), convert(entry.getValue()));
                 ++i;
             }
-            if (g.getType() == Paint.GradientType.LINEAR) {
+            if (g.getType() == Gradient.GradientType.LINEAR) {
                 return new LinearGradient(g.getStartX(), g.getStartY(), g.getEndX(), g.getEndY(), false, CycleMethod.NO_CYCLE, stops);
             } else {
                 return new RadialGradient(g.getStartX(), g.getStartY(), g.getEndX(), g.getEndY(), distance(g.getStartX(), g.getStartY(), g.getEndX(), g.getEndY()), false, CycleMethod.NO_CYCLE, stops);
             }
-        } else {
-            return new javafx.scene.paint.Color(fill.getColor().red(), fill.getColor().green(), fill.getColor().blue(), fill.getColor().alpha());
-        }
-    }
 
+    }
     public static Font convert(net.mahdilamb.dataviz.graphics.Font font) {
         final FontPosture posture;
         switch (font.getStyle()) {

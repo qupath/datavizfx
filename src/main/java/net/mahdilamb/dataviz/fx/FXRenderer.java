@@ -22,6 +22,7 @@ import net.mahdilamb.dataviz.Renderer;
 import net.mahdilamb.dataviz.Selection;
 import net.mahdilamb.dataviz.graphics.*;
 import net.mahdilamb.dataviz.utils.Numbers;
+import net.mahdilamb.dataviz.utils.Variant;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -204,7 +205,7 @@ public class FXRenderer extends Renderer<Image> {
 
     private static final class ChartPanel extends Canvas implements ChartCanvas<Image> {
         private final Text testText = new Text("Test");
-        Paint currentFill = Paint.BLACK_FILL;
+        final Variant<Color, Gradient> currentFill = Variant.ofLeft(Color.BLACK);
         Stroke currentStroke = Stroke.SOLID;
         final Affine affine = new Affine();
 
@@ -262,10 +263,17 @@ public class FXRenderer extends Renderer<Image> {
             getGraphicsContext2D().strokeLine(x0, y0, x1, y1);
         }
 
+
         @Override
-        public void setFill(Paint fill) {
-            this.currentFill = fill;
-            getGraphicsContext2D().setFill(FXUtils.convert(fill));
+        public void setFill(Color color) {
+            this.currentFill.setToLeft(color);
+            getGraphicsContext2D().setFill(FXUtils.convert(color));
+        }
+
+        @Override
+        public void setFill(Gradient gradient) {
+            this.currentFill.setToRight(gradient);
+            getGraphicsContext2D().setFill(FXUtils.convert(gradient));
         }
 
         @Override
@@ -351,7 +359,7 @@ public class FXRenderer extends Renderer<Image> {
         @Override
         public void clearClip() {
             getGraphicsContext2D().restore();
-            setFill(currentFill);
+            currentFill.accept(this::setFill, this::setFill);
             setStroke(currentStroke);
         }
 
