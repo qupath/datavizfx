@@ -24,7 +24,7 @@ compileJava {
 }
 
 group 'net.mahdilamb'
-version '0.1.0-SNAPSHOT'
+version '0.1.1-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -35,7 +35,7 @@ repositories {
 
 dependencies {
     testCompile("junit:junit:4.13")
-   // compile 'net.mahdilamb:charts:0.1.0-SNAPSHOT'
+   // compile 'net.mahdilamb:dataviz:0.1.1-SNAPSHOT'
     compile project(":dataviz")
 
 }

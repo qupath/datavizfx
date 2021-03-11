@@ -36,6 +36,8 @@ public class FXRenderer extends Renderer<Image> {
     double scrollFactor = -0.001;
     boolean horizontalInputEnabled = true,
             verticalInputEnabled = true;
+    net.mahdilamb.dataviz.Renderer.Tooltip hoverText;
+    final Text testText = new Text();
 
     public FXRenderer(Figure figure) {
         super(figure);
@@ -47,10 +49,50 @@ public class FXRenderer extends Renderer<Image> {
         overlay.setOnMousePressed(this::pressed);
         overlay.setOnMouseDragged(this::dragged);
         overlay.setOnMouseClicked(this::clicked);
+        overlay.setOnMouseMoved(this::moved);
         overlay.getGraphicsContext2D().setFill(new javafx.scene.paint.Color(.2, .2, .2, .2));
         overlay.getGraphicsContext2D().setStroke(new javafx.scene.paint.Color(.8, .8, .8, 1));
 
         overlay.getGraphicsContext2D().setFillRule(FillRule.EVEN_ODD);
+    }
+
+    void moved(MouseEvent e) {
+        hoverText = getHoverText(e.getX(), e.getY());
+
+        updateOverlay();
+    }
+
+    void updateOverlay() {
+        /*
+        if (hoverText != null) {
+            if (hoverText.hasChanges()) {
+                overlay.getGraphicsContext2D().clearRect(0, 0, overlay.getWidth(), overlay.getHeight());
+
+                double height = Toolkit.getToolkit().getFontLoader().getFontMetrics(overlay.getGraphicsContext2D().getFont()).getLineHeight();
+                double y = hoverText.getY() - height * .5;
+                double x = hoverText.getX();
+                final String line = hoverText.getText();
+                testText.setFont(overlay.getGraphicsContext2D().getFont());
+                testText.setText(line);
+                double width = testText.getLayoutBounds().getWidth();
+                if ((x + width) > overlay.getWidth()) {
+                    x -= width + 16;
+                } else {
+                    x += 16;
+                }
+                overlay.getGraphicsContext2D().setFill(FXUtils.convert(hoverText.getBackground()));
+                overlay.getGraphicsContext2D().fillRect(x, y, width, height);
+                overlay.getGraphicsContext2D().setFill(FXUtils.convert(hoverText.getForeground()));
+                overlay.getGraphicsContext2D().strokeRect(x, y, width, height);
+                overlay.getGraphicsContext2D().fillText(line, x, y + Toolkit.getToolkit().getFontLoader().getFontMetrics(overlay.getGraphicsContext2D().getFont()).getAscent());
+
+                markTooltipOld(this);
+            }
+        } else {
+            overlay.getGraphicsContext2D().clearRect(0, 0, overlay.getWidth(), overlay.getHeight());
+            resetTooltip(this);
+
+        }*/
     }
 
     void clicked(MouseEvent e) {
@@ -263,7 +305,6 @@ public class FXRenderer extends Renderer<Image> {
             getGraphicsContext2D().strokeLine(x0, y0, x1, y1);
         }
 
-
         @Override
         public void setFill(Color color) {
             this.currentFill.setToA(color);
@@ -294,7 +335,6 @@ public class FXRenderer extends Renderer<Image> {
         @Override
         public void fillText(String text, double x, double y) {
             getGraphicsContext2D().fillText(text, x, y);
-
         }
 
         @Override
@@ -347,6 +387,7 @@ public class FXRenderer extends Renderer<Image> {
                     getGraphicsContext2D().clip();
                     break;
                 case RECTANGLE:
+                    getGraphicsContext2D().beginPath();
                     getGraphicsContext2D().rect(x, y, width, height);
                     getGraphicsContext2D().clip();
                     break;
