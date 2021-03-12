@@ -12,7 +12,7 @@ import net.mahdilamb.dataviz.Figure;
 /**
  * Launcher for FX charts
  */
-public final class FXChartLauncher extends Application {
+public final class FXChart extends Application {
 
     private static FXRenderer chart;
 
@@ -33,8 +33,8 @@ public final class FXChartLauncher extends Application {
             Platform.runLater(() -> initStage(new Stage(), renderer).show());
             return;
         }
-        FXChartLauncher.chart = renderer;
-        launch(FXChartLauncher.class, (String) null);
+        FXChart.chart = renderer;
+        launch(FXChart.class, (String) null);
     }
 
     /**

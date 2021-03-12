@@ -1,18 +1,37 @@
 package net.mahdilamb.dataviz;
 
 
-import net.mahdilamb.dataviz.fx.FXChartLauncher;
+import net.mahdilamb.dataframe.DataFrame;
+import net.mahdilamb.dataviz.fx.FXChart;
+import net.mahdilamb.dataviz.plots.Density2D;
 import net.mahdilamb.dataviz.plots.Scatter;
 
-import java.util.concurrent.ThreadLocalRandom;
-
-import static net.mahdilamb.stats.ArrayUtils.full;
-import static net.mahdilamb.stats.ArrayUtils.linearlySpaced;
+import java.io.File;
+import java.util.Objects;
 
 
 public class ChartFXTest {
+    public static DataFrame loadDataFromResource(final String resourcePath) {
+        return DataFrame.from(new File(Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource(resourcePath)).getFile()));
+    }
+
+    static void density2d() {
+        DataFrame df = loadDataFromResource("tips.csv");
+        final String x = "total_bill";
+        final String y = "tip";
+        new Density2D(df, x, y)
+                .getFigure()
+                .addTrace(
+                        new Scatter(df, x, y)
+                                .setSize(4)
+                )
+                .show(FXChart::launch)
+        ;
+    }
+
     public static void main(String[] args) {
-        int N = 1_000;
+        density2d();
+        /*int N = 1_000;
         double[] random_x = linearlySpaced(0, 1, N);
         double[] random_y0 = full(() -> ThreadLocalRandom.current().nextGaussian() + 7.5, N);
         double[] random_y1 = full(ThreadLocalRandom.current()::nextGaussian, N);
@@ -37,8 +56,8 @@ public class ChartFXTest {
                                 .setTitle("Figure")
                                 .apply(Theme.Plotly)
                 )
-                .show(FXChartLauncher::launch)
+                .show(FXChart::launch)
         ;
-
+*/
     }
 }
