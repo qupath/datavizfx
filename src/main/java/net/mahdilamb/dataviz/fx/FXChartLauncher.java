@@ -1,7 +1,10 @@
 package net.mahdilamb.dataviz.fx;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Scene;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import net.mahdilamb.dataviz.Figure;
@@ -13,32 +16,41 @@ public final class FXChartLauncher extends Application {
 
     private static FXRenderer chart;
 
-
     @Override
     public void start(Stage stage) {
-        final StackPane root = new StackPane();
-        final Scene scene = new Scene(root, chart.getFigure().getWidth(), chart.getFigure().getHeight());
-        chart.addTo(root);
-        // stage.setTitle(chart.getTitle().getText());
-        stage.setScene(scene);
-        stage.show();
+        initStage(stage, chart)
+                .show();
     }
 
     /**
-     * Show the given chart
+     * Show the given figure
      *
-     * @param chart the chart to show
-     * @return the chart
+     * @param fig the figure to show
      */
-    public static FXRenderer launch(FXRenderer chart) {
-        FXChartLauncher.chart = chart;
+    public static void launch(Figure fig) {
+        final FXRenderer renderer = new FXRenderer(fig);
+        if (Platform.isFxApplicationThread()) {
+            Platform.runLater(() -> initStage(new Stage(), renderer).show());
+            return;
+        }
+        FXChartLauncher.chart = renderer;
         launch(FXChartLauncher.class, (String) null);
-        return chart;
     }
 
-
-    public static FXRenderer launch(Figure fig) {
-        return launch(new FXRenderer(fig));
+    /**
+     * Initialize a renderer into the given stage
+     *
+     * @param stage    the stage
+     * @param renderer the fx figure renderer
+     * @return the supplied stage
+     */
+    private static Stage initStage(final Stage stage, final FXRenderer renderer) {
+        final StackPane root = new StackPane();
+        final Scene scene = new Scene(root, renderer.getFigure().getWidth(), renderer.getFigure().getHeight());
+        renderer.addTo(root);
+        stage.setTitle(renderer.getFigure().getTitle());
+        root.setBackground(new Background(new BackgroundFill(FXUtils.convert(renderer.getFigure().getBackgroundColor()), null, null)));
+        stage.setScene(scene);
+        return stage;
     }
-
 }
