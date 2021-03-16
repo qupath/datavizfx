@@ -29,12 +29,13 @@ public final class FXChart extends Application {
      */
     public static void launch(Figure fig) {
         final FXRenderer renderer = new FXRenderer(fig);
-        if (Platform.isFxApplicationThread()) {
+        try {
             Platform.runLater(() -> initStage(new Stage(), renderer).show());
-            return;
+        }catch (IllegalStateException e){
+            FXChart.chart = renderer;
+            launch(FXChart.class, (String) null);
         }
-        FXChart.chart = renderer;
-        launch(FXChart.class, (String) null);
+
     }
 
     /**

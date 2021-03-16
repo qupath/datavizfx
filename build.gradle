@@ -17,6 +17,11 @@ plugins {
 
 }
 apply plugin: "com.bmuschko.nexus"
+ext.moduleName = 'net.mahdilamb.datavizfx'
+
+java {
+    modularity.inferModulePath = true
+}
 compileJava {
     sourceCompatibility = JavaVersion.VERSION_1_9
 //will work with Java 1.8, but this is required as there is a module-info.java
@@ -24,7 +29,7 @@ compileJava {
 }
 
 group 'net.mahdilamb'
-version '0.1.1-SNAPSHOT'
+version '0.1.21-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -35,7 +40,7 @@ repositories {
 
 dependencies {
     testCompile("junit:junit:4.13")
-   // compile 'net.mahdilamb:dataviz:0.1.1-SNAPSHOT'
+    //compile 'net.mahdilamb:dataviz:0.1.2-SNAPSHOT'
     compile project(":dataviz")
 
 }
