@@ -1,12 +1,18 @@
 plugins {
-    id 'application'
+    id 'java-library'
     id 'org.openjfx.javafxplugin' version '0.0.10'
+    id 'maven-publish'
+    id 'signing'
+
 }
 
 ext.moduleName = 'net.mahdilamb.dataviz.fx'
+ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
 java {
     modularity.inferModulePath = true
+    withJavadocJar()
+    withSourcesJar()
 }
 compileJava {
     sourceCompatibility = JavaVersion.VERSION_16
@@ -15,7 +21,7 @@ compileJava {
 }
 
 group 'net.mahdilamb'
-version '0.1.231-SNAPSHOT'
+version '0.1.25-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -30,8 +36,6 @@ dependencies {
     implementation 'net.mahdilamb:dataviz:0.1.3-SNAPSHOT'
     implementation 'net.mahdilamb:dataframe:0.2.2'
     implementation 'net.mahdilamb:colormap:0.9.511'
-
-
 }
 
 test {
@@ -44,7 +48,67 @@ javafx {
 javadoc {
     options.tags = ["apiNote", "implNote"]
 }
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from(components["java"])
+            pom {
+                name = "datavizFX"
+                description = "A java-fx data visualization package"
+                url = "https://github.com/mahdilamb/datavizfx"
+                inceptionYear = "2020"
 
+                licenses {
+                    license {
+                        name = "MIT License"
+                        url = "http://www.opensource.org/licenses/mit-license.php"
+                        distribution = "repo"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "mahdilamb"
+                        name = "Mahdi Lamb"
+                        email = "mahdilamb[at]gmail[dot]com"
+                    }
+                }
+                scm {
+                    url = "https://github.com/mahdilamb/datavizfx"
+                    connection = "scm:https://mahdilamb@github.com/mahdilamb/datavizfx.git"
+                    developerConnection = "scm:git://github.com/mahdilamb/datavizfx.git"
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            credentials {
+                username project.nexusUsername
+                password project.nexusPassword
+            }
+        }
+    }
+}
+
+signing {
+    String signingKeyId = findProperty("signing.keyId")
+    String signingKey = findProperty("signing.secretKeyRingFile")
+    String signingPassword = findProperty("signing.password")
+    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+    sign publishing.publications.mavenJava
+}
+
+tasks.withType(Sign) {
+    onlyIf { !version.endsWith("SNAPSHOT") }
+}
+javadoc {
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
 task fxTest(type: JavaExec, dependsOn: ['testClasses']) {
     classpath = sourceSets.test.runtimeClasspath
     jvmArgs = ['--module-path', classpath.asPath,
