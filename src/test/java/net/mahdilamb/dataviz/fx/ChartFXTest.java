@@ -1,12 +1,12 @@
-package net.mahdilamb.dataviz;
+package net.mahdilamb.dataviz.fx;
 
 
 import net.mahdilamb.dataframe.DataFrame;
-import net.mahdilamb.dataviz.fx.FXChart;
-import net.mahdilamb.dataviz.plots.Density2D;
 import net.mahdilamb.dataviz.plots.Scatter;
+import net.mahdilamb.dataviz.ui.IconStore;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.util.Objects;
 
 
@@ -15,22 +15,27 @@ public class ChartFXTest {
         return DataFrame.from(new File(Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource(resourcePath)).getFile()));
     }
 
-    static void density2d() {
-        DataFrame df = loadDataFromResource("tips.csv");
-        final String x = "total_bill";
-        final String y = "tip";
-        new Density2D(df, x, y)
-                .getFigure()
-                .addTrace(
-                        new Scatter(df, x, y)
-                                .setSize(4)
-                )
-                .show(FXChart::launch)
-        ;
-    }
+    /*
+        static void density2d() {
+            DataFrame df = loadDataFromResource("tips.csv");
+            final String x = "total_bill";
+            final String y = "tip";
+            new Density2D(df, x, y)
+                    .getFigure()
+                    .addTrace(
+                            new Scatter(df, x, y)
+                                    .setSize(4)
+                    )
+                    .show(FXChart::launch)
+            ;
+        }*/
+    static final DataFrame iris = loadDataFromResource("iris.csv");
 
     public static void main(String[] args) {
-        density2d();
+
+       new Scatter(iris, "petal_length", "petal_width")
+                .show();
+        //   density2d();
         /*int N = 1_000;
         double[] random_x = linearlySpaced(0, 1, N);
         double[] random_y0 = full(() -> ThreadLocalRandom.current().nextGaussian() + 7.5, N);
