@@ -21,7 +21,7 @@ compileJava {
 }
 
 group 'net.mahdilamb'
-version '0.1.25-SNAPSHOT'
+version '0.1.251-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -33,7 +33,7 @@ repositories {
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
-    implementation 'net.mahdilamb:dataviz:0.1.3-SNAPSHOT'
+    implementation 'net.mahdilamb:dataviz:0.1.31-SNAPSHOT'
     implementation 'net.mahdilamb:dataframe:0.2.2'
     implementation 'net.mahdilamb:colormap:0.9.511'
 }
@@ -86,8 +86,8 @@ publishing {
             def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
             url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
             credentials {
-                username project.nexusUsername
-                password project.nexusPassword
+                username = project.nexusUsername
+                password = project.nexusPassword
             }
         }
     }
@@ -104,15 +104,8 @@ signing {
 tasks.withType(Sign) {
     onlyIf { !version.endsWith("SNAPSHOT") }
 }
-javadoc {
-    if (JavaVersion.current().isJava9Compatible()) {
-        options.addBooleanOption('html5', true)
-    }
-}
+
 task fxTest(type: JavaExec, dependsOn: ['testClasses']) {
     classpath = sourceSets.test.runtimeClasspath
-    jvmArgs = ['--module-path', classpath.asPath,
-               '--add-modules', 'javafx.controls'
-    ]
     main = "net.mahdilamb.dataviz.fx.ChartFXTest"
 }

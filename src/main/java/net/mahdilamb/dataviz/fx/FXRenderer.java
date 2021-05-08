@@ -87,8 +87,8 @@ public class FXRenderer extends Renderer<BufferedImage> {
     }
 
     @Override
-    protected double getTextLineHeight(Font font) {
-        return canvas.bufferedImage.getFontMetrics(SwingUtils.convert(font)).getHeight();
+    protected double getTextLineHeight(Font font, String text) {
+        return SwingUtils.getLineHeight(canvas.bufferedImage.getFontMetrics(SwingUtils.convert(font)), text, 1);
     }
 
     @Override

@@ -34,7 +34,6 @@ public final class FXLauncher extends Application {
             FXLauncher.renderer = renderer;
             launch(FXLauncher.class, (String) null);
         }
-
     }
 
     /**

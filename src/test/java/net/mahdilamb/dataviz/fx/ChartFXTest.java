@@ -3,10 +3,8 @@ package net.mahdilamb.dataviz.fx;
 
 import net.mahdilamb.dataframe.DataFrame;
 import net.mahdilamb.dataviz.plots.Scatter;
-import net.mahdilamb.dataviz.ui.IconStore;
 
 import java.io.File;
-import java.net.URISyntaxException;
 import java.util.Objects;
 
 
@@ -34,6 +32,7 @@ public class ChartFXTest {
     public static void main(String[] args) {
 
        new Scatter(iris, "petal_length", "petal_width")
+               .setColors("species")
                 .show();
         //   density2d();
         /*int N = 1_000;
