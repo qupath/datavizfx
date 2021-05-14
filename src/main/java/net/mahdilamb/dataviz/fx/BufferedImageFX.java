@@ -16,7 +16,7 @@ import java.awt.image.SampleModel;
 import java.awt.image.SinglePixelPackedSampleModel;
 import java.nio.IntBuffer;
 
-class BufferedImageFX extends ImageView implements GraphicsBuffer<BufferedImage> {
+class BufferedImageFX extends ImageView implements GraphicsBuffer {
     final BufferedImageExtended bufferedImage;
     private final WritableImage image;
     boolean hasChanges = true;
@@ -34,10 +34,9 @@ class BufferedImageFX extends ImageView implements GraphicsBuffer<BufferedImage>
     }
 
     /**
-     * @return the writable image after syncing with buffered image
      * @implNote the method is modified from the JavaFX SDK module javafx.swing (javafx.embed.swing.SwingFXUtils#toFXImage)
      */
-    WritableImage sync() {
+    void sync() {
         if (hasChanges) {
             final PixelWriter pw = image.getPixelWriter();
             final DataBufferInt db = (DataBufferInt) bufferedImage.getRaster().getDataBuffer();
@@ -51,7 +50,6 @@ class BufferedImageFX extends ImageView implements GraphicsBuffer<BufferedImage>
             pw.setPixels(0, 0, bufferedImage.getWidth(), bufferedImage.getHeight(), pf, db.getData(), bufferedImage.getRaster().getDataBuffer().getOffset(), scan);
             hasChanges = false;
         }
-        return image;
     }
 
     void markOld() {

@@ -2,9 +2,7 @@ package net.mahdilamb.dataviz.fx;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import net.mahdilamb.dataviz.figure.FigureBase;
 

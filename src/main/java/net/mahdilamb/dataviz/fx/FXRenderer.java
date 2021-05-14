@@ -13,9 +13,9 @@ import javafx.stage.FileChooser;
 import net.mahdilamb.dataviz.figure.FigureBase;
 import net.mahdilamb.dataviz.figure.Renderer;
 import net.mahdilamb.dataviz.graphics.Font;
+import net.mahdilamb.dataviz.graphics.FontUtils;
 import net.mahdilamb.dataviz.graphics.GraphicsBuffer;
 import net.mahdilamb.dataviz.graphics.GraphicsContext;
-import net.mahdilamb.dataviz.swing.SwingUtils;
 import net.mahdilamb.dataviz.utils.StringUtils;
 
 import javax.imageio.ImageIO;
@@ -26,7 +26,7 @@ import java.io.InputStream;
 import java.util.List;
 
 
-public class FXRenderer extends Renderer<BufferedImage> {
+public class FXRenderer extends Renderer {
     private final Layer canvas;
     private final Layer overlay;
     double scrollFactor = -0.001;
@@ -73,49 +73,22 @@ public class FXRenderer extends Renderer<BufferedImage> {
 
     @Override
     protected double getTextBaselineOffset(Font font) {
-        return canvas.bufferedImage.getFontMetrics(SwingUtils.convert(font)).getAscent();
+        return canvas.bufferedImage.getFontMetrics(FontUtils.convert(font)).getAscent();
     }
 
     @Override
     protected double getTextWidth(Font font, String text) {
-        return SwingUtils.getTextWidth(canvas.bufferedImage.getFontMetrics(SwingUtils.convert(font)), text);
+        return FontUtils.getTextWidth(canvas.bufferedImage.getFontMetrics(FontUtils.convert(font)), text);
     }
 
     @Override
     protected double getCharWidth(Font font, char character) {
-        return canvas.bufferedImage.getFontMetrics(SwingUtils.convert(font)).charWidth(character);
+        return canvas.bufferedImage.getFontMetrics(FontUtils.convert(font)).charWidth(character);
     }
 
     @Override
     protected double getTextLineHeight(Font font, String text) {
-        return SwingUtils.getLineHeight(canvas.bufferedImage.getFontMetrics(SwingUtils.convert(font)), text, 1);
-    }
-
-    @Override
-    protected BufferedImage loadImage(InputStream stream) {
-        try {
-            return ImageIO.read(stream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    @Override
-    protected GraphicsBuffer<BufferedImage> createBuffer(double width, double height, double translateX, double translateY, int overflowTop, int overflowLeft, int overflowBottom, int overflowRight) {
-        return new BufferedImageFX(width, height, translateX, translateY, overflowTop, overflowLeft, overflowBottom, overflowRight);
-    }
-
-    @Override
-    protected void drawBuffer(GraphicsBuffer<BufferedImage> context, GraphicsBuffer<BufferedImage> buffer, double x, double y) {
-        final BufferedImageFX canvasBuffer = (BufferedImageFX) buffer;
-        context.drawImage(canvasBuffer.bufferedImage, x - canvasBuffer.bufferedImage.overflowLeft, y - canvasBuffer.bufferedImage.overflowTop);
-    }
-
-    @Override
-    protected boolean bufferSizeChanged(GraphicsBuffer<BufferedImage> buffer, double x, double y, double width, double height) {
-        final BufferedImageFX canvasBuffer = (BufferedImageFX) buffer;//TODO full size changed
-        return (canvasBuffer.bufferedImage.width) != width || (canvasBuffer.bufferedImage.height) != height;
+        return FontUtils.getLineHeight(canvas.bufferedImage.getFontMetrics(FontUtils.convert(font)), text, 1);
     }
 
     @Override
@@ -137,32 +110,6 @@ public class FXRenderer extends Renderer<BufferedImage> {
         clipboard.setContent(content);
     }
 
-
-    @Override
-    protected BufferedImage cropImage(BufferedImage source, int x, int y, int width, int height) {
-        return source.getSubimage(x, y, width, height);
-    }
-
-    @Override
-    protected double getImageWidth(BufferedImage image) {
-        return image.getWidth();
-    }
-
-    @Override
-    protected double getImageHeight(BufferedImage image) {
-        return image.getHeight();
-    }
-
-    @Override
-    protected byte[] bytesFromImage(BufferedImage image) {
-        return SwingUtils.convertToByteArray(image);
-    }
-
-    @Override
-    protected int argbFromImage(BufferedImage image, int x, int y) {
-        return image.getRGB(x, y);
-    }
-
     @Override
     protected File getOutputPath(List<String> fileTypes, String defaultExtension) {
         if (fileTypes == null) {
@@ -181,12 +128,12 @@ public class FXRenderer extends Renderer<BufferedImage> {
     }
 
     @Override
-    protected GraphicsContext<BufferedImage> getFigureContext() {
+    protected GraphicsContext getFigureContext() {
         return canvas;
     }
 
     @Override
-    protected GraphicsContext<BufferedImage> getOverlayContext() {
+    protected GraphicsContext getOverlayContext() {
         return overlay;
     }
 
@@ -196,7 +143,7 @@ public class FXRenderer extends Renderer<BufferedImage> {
         overlay.sync();
     }
 
-    private static final class Layer extends BufferedImageFX implements GraphicsContext<BufferedImage> {
+    private static final class Layer extends BufferedImageFX implements GraphicsContext {
         private final FXRenderer renderer;
 
         Layer(FXRenderer renderer, double width, double height) {
@@ -205,7 +152,7 @@ public class FXRenderer extends Renderer<BufferedImage> {
         }
 
         @Override
-        public Renderer<BufferedImage> getRenderer() {
+        public Renderer getRenderer() {
             return renderer;
         }
 
